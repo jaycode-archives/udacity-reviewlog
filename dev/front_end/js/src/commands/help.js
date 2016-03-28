@@ -12,7 +12,7 @@ app.commands = app.commands || {};
       }
     },
     run: function(args) {
-      if (args) {
+      if (args[0] != null) {
         command = findCommand(args[0]);
         if (command) {
           return command.help(false);
@@ -25,8 +25,7 @@ app.commands = app.commands || {};
               var str = "\
 ------------\n\
 Commands\n\
-------------\n\
-        ";
+------------\n";
               var other_str = "Other:\n";
               for (command in app.commands) {
                 if ('run' in app.commands[command]) {
