@@ -1,0 +1,25 @@
+.console_area {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: $console-window-bg-color;
+  padding-bottom: 5px;
+  .window-head {
+    font-size: rem-calc(18);
+    color: $window-head-color;
+    background-color: $window-head-bg-color;
+    padding: 2px 5px;
+    margin-bottom: 0;
+    .minimize {
+      float: right;
+      padding:0;
+      height:15px;
+      width:15px;
+      border: 1px solid $white;
+      margin-top: 3px;
+    }
+  }
+  .console {
+    // margin: 5px 5px 0 5px;
+  }
+}

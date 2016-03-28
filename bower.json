@@ -1,0 +1,36 @@
+{
+  "name": "udacity-reviewlog",
+  "version": "0.0.0",
+  "homepage": "https://github.com/jaycode/udacity-reviewlog",
+  "authors": [
+    "jaycode <teguhwpurwanto@gmail.com>"
+  ],
+  "description": "Review log tool for Udacity Reviews",
+  "main": "app.js",
+  "keywords": [
+    "udacity",
+    "review",
+    "review",
+    "log"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "fastclick": ">=0.6.11",
+    "d3": "~3.5.6",
+    "foundation": "zurb/bower-foundation",
+    "knockout": "~3.3.0",
+    "underscore": "~1.8.3",
+    "sockjs-client": "~1.0.3",
+    "jquery": "~3.0.0",
+    "modernizr": "~2.8.3",
+    "datatables": "~1.10.10"
+  }
+}
