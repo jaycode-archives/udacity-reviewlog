@@ -40,6 +40,11 @@ Commands\n\
               }
               str += other_str;
 
+              str += "\nOther useful commands:\n" \
+                  "\tCTRL + L: Clear console.\n" \
+                  "\tALT + +: Maximize console size.\n" \
+                  "\tALT + -: Hide console.\n" \
+                  "\tALT + 0: Standard console size."
               return str;
       }
     }
