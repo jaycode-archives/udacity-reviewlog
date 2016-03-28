@@ -44,7 +44,7 @@ var app = app || {};
         var foundCommand = findCommand(cmd.name);
         
         if (foundCommand) {
-          $('#console').terminal().echo(foundCommand.run(cmd.args, $('#console').terminal)+"\n");
+          $('#console').terminal().echo(foundCommand.run(cmd.args, $('#console').terminal())+"\n");
         }
         else {
           $('#console').terminal().echo("Command not found. Run 'help' for list of commands\n");
