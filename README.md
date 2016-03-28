@@ -1,7 +1,7 @@
 Udacity Review Log
 ---------------------
 
-Client tool to read the log of your reviews.
+Client tool to read the log of your reviews. [See it live](http://jaycode.github.io/udacity-reviewlog/).
 
 You can find things like:
 

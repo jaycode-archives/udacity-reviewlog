@@ -1,6 +1,5 @@
 var app = app || {};
 (function() {
-
   app.viewModel = function() {
     self = this;
     self.shrinkConsole = function() {
@@ -41,7 +40,15 @@ var app = app || {};
     jQuery(function($, undefined) {
       $('#console').terminal(function(command, term) {
         var cmd = $.terminal.splitCommand(command);
-        $('#console').terminal().echo("Command entered: " + cmd.name);
+        // Find command
+        var foundCommand = findCommand(cmd.name);
+        
+        if (foundCommand) {
+          $('#console').terminal().echo(foundCommand.run(cmd.args, $('#console').terminal)+"\n");
+        }
+        else {
+          $('#console').terminal().echo("Command not found. Run 'help' for list of commands\n");
+        }
       }, {
         greetings: "Type 'help' for list of commands.",
         name: 'Udacity Review Log console',
