@@ -8,7 +8,8 @@
    */
   app.data = {
     settings: {
-      consoleDefaultHeight: 200
+      consoleDefaultHeight: 200,
+      completedURL: 'https://review-api.udacity.com/api/v1/me/submissions/completed.json'
     }
   };
 

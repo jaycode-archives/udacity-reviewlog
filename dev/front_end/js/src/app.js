@@ -74,4 +74,7 @@ var app = app || {};
       });
     });
   });
+  window.onload = function() {
+    app.indexedStore.setup();
+  };
 })();
