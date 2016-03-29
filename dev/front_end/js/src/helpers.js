@@ -111,13 +111,15 @@ getDatesFromArgs = function(args) {
     endDate = new Date((fromDate.getFullYear() + yearsFromMonths(normalizeMonth(fromDate.getMonth() + 2)) + ' ' + normalizeMonth(fromDate.getMonth() + 2)))
   }
   else if (args.length == 4) {
-    var today = new Date(args[0] + ' ' + args[1]);
-    fromDate = new Date(today.getFullYear() + ' ' + (today.getMonth() + 1));
-    var until = new Date(args[2] + ' ' + args[3]);
-    endDate = new Date(until.getFullYear() + ' ' + (until.getMonth() + 1));
+    var fromDate = new Date(args[0] + ' ' + args[1]);
+    var endDate = new Date(args[2] + ' ' + args[3]);
+  }
+  else if (args.length == 6) {
+    fromDate = new Date(args[0] + ' ' + args[1] + ' ' + args[2]);
+    endDate = new Date(args[3] + ' ' + args[4] + ' ' + args[5]);
   }
   else {
-    throw new Error("Invalid number of arguments (should be 0, 2, or 4");
+    throw new Error("Invalid number of arguments (should be 0, 2, 4, or 6");
   }
 
   return [fromDate, endDate];
@@ -131,4 +133,6 @@ testGetDatesFromArgs = function() {
   console.assert(getDatesFromArgs(['2015', 'Dec', '2016', 'Jan'])[0].getMonth(), 11);
   console.assert(getDatesFromArgs(['2015', 'Dec', '2016', 'Jan'])[1].getFullYear(), 2016);
   console.assert(getDatesFromArgs(['2015', 'Dec', '2016', 'Feb'])[1].getMonth(), 1);
+  console.assert(getDatesFromArgs(['2015', 'Dec', '5', '2016', 'Feb', '7'])[0].getDate(), 5);
+  console.assert(getDatesFromArgs(['2015', 'Dec', '5', '2016', 'Feb', '7'])[0].getDate(), 7);
 }
