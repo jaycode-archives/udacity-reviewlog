@@ -57,60 +57,81 @@ app.commands.reviews = app.commands.reviews || {};
         var iterYear = startDate.getFullYear() + yearsFromMonths(endDate.getMonth() + 1 + 1);
         while (iterMonth != normalizeMonth(endDate.getMonth() + 2) || 
                iterYear != (endDate.getFullYear() - yearsFromMonths(endDate.getMonth() + 2))) {
-          batch.push( function() {
-            var sYear = arguments[0];
-            var sMonth = monthString(arguments[1]);
-            var eYear = (arguments[0] + yearsFromMonths(arguments[1] + 1));
-            // Not currently used, for reference only
-            // var eMonth = monthString(normalizeMonth(arguments[1] + 1));
 
-            terminal.echo('Getting data from ' + sYear + ' ' + sMonth + '...');
+          var sYear = iterYear;
+          var sMonth = monthString(iterMonth);
+          var eYear = (iterYear + yearsFromMonths(iterMonth + 1));
+          // Not currently used, for reference only
+          // var eMonth = monthString(normalizeMonth(arguments[1] + 1));
+          
+          terminal.echo('Queuing review gathering from ' + sYear + ' ' + sMonth + '.');
 
-            // Converts "1" to "01"
-            var str1 = "00" + arguments[1];
-            var sMonthToSend = str1.substr(str1.length-2);
-            var str2 = "00" + normalizeMonth(arguments[1] + 1);
-            var eMonthToSend = str2.substr(str2.length-2);
+          // Converts "1" to "01"
+          var str1 = "00" + iterMonth;
+          var sMonthToSend = str1.substr(str1.length-2);
+          var str2 = "00" + normalizeMonth(iterMonth + 1);
+          var eMonthToSend = str2.substr(str2.length-2);
 
-            return $.ajax({
-              type: 'GET',
-              url: app.data.settings.completedURL,
-              data: {
-                start_date: sYear + '-' + sMonthToSend + '-01',
-                end_date: eYear + '-' + eMonthToSend + '-01',
-              },
-              headers: {
-                  "Authorization":localStorage.udacity_api
-              }
-            }).done(function(data) {
-                terminal.echo('Retrieved ' + data.length + ' completed reviews.');
-                for (id in data) {
-                  var datum = data[id];
-                  var tx = app.db.transaction('reviews', 'readwrite');
-                  var store = tx.objectStore("reviews");
-                  var request = store.put(datum);
-                  request.onerror = function() {
-                    terminal.echo(request.error);
-                  };
-                  tx.onabort = function() {
-                    terminal.echo(tx.error);
-                  };
-                }
-            });
-
-            }.apply(this, [iterYear, iterMonth])
-          );
+          batch.push([$.ajax({
+            type: 'GET',
+            url: app.data.settings.completedURL,
+            data: {
+              start_date: sYear + '-' + sMonthToSend + '-01',
+              end_date: eYear + '-' + eMonthToSend + '-01',
+            },
+            headers: {
+                "Authorization":localStorage.udacity_api
+            }
+          }), sYear, sMonth]);
 
           iterMonth += 1;
           iterYear += yearsFromMonths(iterMonth);
           iterMonth = normalizeMonth(iterMonth);
+        };
+
+        var keepData = function(data, sYear, sMonth) {
+          terminal.echo('Retrieved ' + data.length + ' completed reviews from ' + sYear + ' ' + sMonth + '.');
+          for (id in data) {
+            var datum = data[id];
+            var tx = app.db.transaction('reviews', 'readwrite');
+            var store = tx.objectStore("reviews");
+            var request = store.put(datum);
+            request.onerror = function() {
+              terminal.echo(request.error);
+            };
+            tx.onabort = function() {
+              terminal.echo(tx.error);
+            };
+          }
         }
 
-        batch.reduce(function(chain, callback) { 
-          if(chain) { 
-            return chain.then(function(data) { return callback(data); });
-          }
-        }, null);
+        // Reference: Next, we're basically going to use "then" method
+        // to chain ajax methods similar to following:
+        //
+        // batch[0].then(function(data) {
+        //   terminal.echo('Retrieved ' + data.length + ' completed reviews.');
+        //   return batch[1];
+        // }).then(function(data) {
+        //   terminal.echo('Retrieved ' + data.length + ' completed reviews.');
+        //   return batch[2];
+        // }).done(function(data) {
+        //   terminal.echo('Retrieved ' + data.length + ' completed reviews.');
+        // });
+
+        // Not sure how to do this without eval.
+        var thenCode = "batch[0][0]";
+        for (var i=0;i<batch.length-1;i++) {
+          thenCode += ".then(function(data) {" +
+                        "keepData(data, batch["+i+"][1], batch["+i+"][2]);" +
+                        "return batch["+(i+1)+"][0];" +
+                      "})";
+        }
+        thenCode += ".done(function(data) {" +
+                        "keepData(data, batch["+i+"][1], batch["+i+"][2]);" +
+                      "})";
+        eval(thenCode);
+
+        return '';
       }
       else {
         return "Set api code with `set_api [key]` command first.";

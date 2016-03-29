@@ -16,6 +16,16 @@
 <body>
   <div id="main_area" class="main">
     <div class="workspace" id="workspace">
+      <div id="review-list" class="review-list page" data-bind="with: reviews">
+        <div class="review-topbar">
+          <h1 class="review-name" data-bind="text: name"></h1>
+        </div>
+        <div class="row">
+          <div class="medium-12 columns">
+            <table id="review-list-table" width="100%"></table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <div id="console_area" class="console_area">
