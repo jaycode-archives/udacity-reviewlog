@@ -72,21 +72,63 @@ leadString = function(number, leadString) {
   return str.substr(str.length-leadString.length);
 }
 
-test = function() {
-  var tx = app.db.transaction("reviews", "readonly");
-  var store = tx.objectStore("reviews");
-  var index = store.index("by_id");
+/**
+ * Adds commas to number string, for example "10000" to "10,000".
+ * @param {string|number} text String of number to we will add commas for.
+ *   Due to how javascript works, you can pass in numbers as well.
+ * @return {string} String of number with commas added.
+ */
+formatThousandSeparators = function(text) {
+  return parseFloat(text).toLocaleString();
+};
 
-  var request = index.openCursor();
-  request.onsuccess = function() {
-    var cursor = request.result;
-    if (cursor) {
-      // Called for each matching record.
-      console.log(cursor.value.id + " " + cursor.value.name);
-      cursor.continue();
-    } else {
-      // No more matching records.
-      console.log(null);
-    }
-  };
+/**
+ * Removes commas from given number string.
+ * For example it converts "10,000" to 10000. This is useful for
+ * preprocessing number prior to entering it to models.
+ * @param {string} text String of number with comma separators.
+ * @return {number} Numeric representation of given string.
+ */
+parseNumberWithSeparators = function(text) {
+  return parseInt(text.toString().replace(/(\d+),(?=\d{3}(\D|$))/g, "$1"));
+};
+
+/**
+ * Returns from and end dates from given array of arguments.
+ * @param {array} args: Array of arguments.
+ * @return {array} Array containing fromDate and endDate.
+ */
+getDatesFromArgs = function(args) {
+  var fromDate;
+  var endDate;
+  if (args.length == 0) {
+    var today = new Date();
+    fromDate = new Date(today.getFullYear() + ' ' + (today.getMonth() + 1));
+    endDate = new Date((today.getFullYear() + yearsFromMonths(normalizeMonth(today.getMonth() + 2)) + ' ' + normalizeMonth(today.getMonth() + 2)))
+  }
+  else if (args.length == 2) {
+    fromDate = new Date(args[0] + ' ' + args[1]);
+    endDate = new Date((fromDate.getFullYear() + yearsFromMonths(normalizeMonth(fromDate.getMonth() + 2)) + ' ' + normalizeMonth(fromDate.getMonth() + 2)))
+  }
+  else if (args.length == 4) {
+    var today = new Date(args[0] + ' ' + args[1]);
+    fromDate = new Date(today.getFullYear() + ' ' + (today.getMonth() + 1));
+    var until = new Date(args[2] + ' ' + args[3]);
+    endDate = new Date(until.getFullYear() + ' ' + (until.getMonth() + 1));
+  }
+  else {
+    throw new Error("Invalid number of arguments (should be 0, 2, or 4");
+  }
+
+  return [fromDate, endDate];
+}
+
+testGetDatesFromArgs = function() {
+  console.assert(getDatesFromArgs([])[0].getMonth(), (new Date()).getMonth());
+  console.assert(getDatesFromArgs(['2016', 'Mar'])[0].getMonth(), 2);
+  console.assert(getDatesFromArgs(['2016', 'Mar'])[1].getMonth(), 3);
+  console.assert(getDatesFromArgs(['2015', 'Dec', '2016', 'Jan'])[0].getFullYear(), 2015);
+  console.assert(getDatesFromArgs(['2015', 'Dec', '2016', 'Jan'])[0].getMonth(), 11);
+  console.assert(getDatesFromArgs(['2015', 'Dec', '2016', 'Jan'])[1].getFullYear(), 2016);
+  console.assert(getDatesFromArgs(['2015', 'Dec', '2016', 'Feb'])[1].getMonth(), 1);
 }

@@ -23,27 +23,20 @@ app.commands.reviews = app.commands.reviews || {};
       var store = tx.objectStore("reviews");
       var index = store.index("by_assigned_at");
 
-      var fromDate;
-      var toDate;
-      if (args.length == 0) {
-        var today = new Date();
-        fromDate = new Date(today.getFullYear() + ' ' + (today.getMonth() + 1));
-        endDate = new Date((today.getFullYear() + yearsFromMonths(normalizeMonth(today.getMonth() + 2)) + ' ' + normalizeMonth(today.getMonth() + 2)))
-      }
-      else if (args.length == 2) {
+      var dates = getDatesFromArgs(args);
+      var fromDate = dates[0];
+      var toDate = dates[1];
+      var request = index.openCursor(IDBKeyRange.bound(fromDate, toDate));
+      // var request = index.openCursor();
+      app.vm.reviews.removeAll();
+      app.vm.report.totalEarnings(0.0);
+      app.vm.report.totalReviews(0.0);
 
-      }
-      else if (args.length == 4) {
-
-      }
-      var request = index.openCursor(IDBKeyRange.bound(fromDate, endDate));
-      app.data.reviews = [];
       request.onsuccess = function() {
         var cursor = request.result;
         if (cursor) {
-          debugger;
-          var startTime = new Date(cursor.value.assigned_at);
-          var endTime = new Date(cursor.value.completed_at);
+          var startTime = cursor.value.assigned_at;
+          var endTime = cursor.value.completed_at;
           var minutesSpent = endTime.getHours()*60+endTime.getMinutes() - startTime.getHours()*60+startTime.getMinutes();
           // Called for each matching record.
           app.vm.reviews.push({
@@ -57,10 +50,15 @@ app.commands.reviews = app.commands.reviews || {};
             time_end: leadString(endTime.getHours(), '00') + ':' + leadString(endTime.getMinutes(), '00'),
             time_spent: leadString(Math.floor(minutesSpent / 60), '00') + ':' + leadString(minutesSpent % 60, '00'),
             price: cursor.value.price,
-            reference: cursor.value.user.name,
+            reference: 'id (version)',
             link: '<a target="_blank" href="https://review.udacity.com/#!/reviews/' + cursor.value.id + '">'+cursor.value.id+'</a>',
             notes: ''
           });
+
+          // Summary-related info:
+          app.vm.report.totalEarnings(app.vm.report._totalEarnings() + parseFloat(cursor.value.price));
+          app.vm.report.totalReviews(app.vm.report.totalReviews() + 1);
+
           cursor.continue();
         } else {
           // No more matching records.

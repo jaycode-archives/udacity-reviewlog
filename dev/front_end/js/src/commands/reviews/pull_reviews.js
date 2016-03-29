@@ -92,6 +92,10 @@ app.commands.reviews = app.commands.reviews || {};
             var datum = data[id];
             var tx = app.db.transaction('reviews', 'readwrite');
             var store = tx.objectStore("reviews");
+            datum.assigned_at = new Date(datum.assigned_at);
+            datum.created_at = new Date(datum.created_at);
+            datum.completed_at = new Date(datum.completed_at);
+
             var request = store.put(datum);
             request.onerror = function() {
               terminal.echo(request.error);
