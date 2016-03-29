@@ -62,6 +62,16 @@ monthString = function(monthInt) {
   return months[monthInt-1];
 };
 
+/**
+ * Add leading string, e.g. 5 to '05'.
+ * @param {int} number: Number to convert.
+ * @param {string} leadString: String showing lead text. With '000', 1 will be converted to '001'.
+ */
+leadString = function(number, leadString) {
+  var str = leadString + number;
+  return str.substr(str.length-leadString.length);
+}
+
 test = function() {
   var tx = app.db.transaction("reviews", "readonly");
   var store = tx.objectStore("reviews");

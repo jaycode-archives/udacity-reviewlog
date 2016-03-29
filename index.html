@@ -18,7 +18,15 @@
     <div class="workspace" id="workspace">
       <div id="review-list" class="review-list page">
         <div class="review-topbar">
-          <h1 class="review-name"></h1>
+          <h1 class="review-name">Reviews</h1>
+        </div>
+        <div class="row" data-bind="with: report">
+          <div class="medium-6 columns">
+            <label>Total Income: <span data-bind="text: totalIncome"></span></label>
+          </div>
+          <div class="medium-6 columns">
+            <label>Total Reviews: <span data-bind="text: totalReviews"></span></label>
+          </div>
         </div>
         <div class="row">
           <div class="medium-12 columns">
@@ -36,7 +44,7 @@
                   <td>Notes</td>
                 </tr>
               </thead>
-              <tbody data-bind="foreach: app.reviews">
+              <tbody data-bind="foreach: reviews">
                 <tr>
                   <td data-bind="text: project_name"></td>
                   <td data-bind="text: date"></td>
@@ -44,7 +52,8 @@
                   <td data-bind="text: time_end"></td>
                   <td data-bind="text: time_spent"></td>
                   <td data-bind="text: price"></td>
-                  <td data-bind="text: link"></td>
+                  <td data-bind="text: reference"></td>
+                  <td data-bind="html: link"></td>
                   <td data-bind="text: notes"></td>
                 </tr>
               </tbody>

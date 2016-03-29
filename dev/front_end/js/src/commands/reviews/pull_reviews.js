@@ -50,8 +50,8 @@ app.commands.reviews = app.commands.reviews || {};
           var startDate = new Date(startYear + ' ' + startMonth);
         }
         else {
-          var startDate = args[0] + ' ' + args[1];
-          var endDate = args[1] + ' ' + args[2];
+          var startDate = new Date(args[0] + ' ' + args[1]);
+          var endDate = new Date(args[1] + ' ' + args[2]);
         }
         var iterMonth = startDate.getMonth() + 1;
         var iterYear = startDate.getFullYear() + yearsFromMonths(endDate.getMonth() + 1 + 1);
@@ -66,11 +66,8 @@ app.commands.reviews = app.commands.reviews || {};
           
           terminal.echo('Queuing review gathering from ' + sYear + ' ' + sMonth + '.');
 
-          // Converts "1" to "01"
-          var str1 = "00" + iterMonth;
-          var sMonthToSend = str1.substr(str1.length-2);
-          var str2 = "00" + normalizeMonth(iterMonth + 1);
-          var eMonthToSend = str2.substr(str2.length-2);
+          var sMonthToSend = leadString(iterMonth, '00');
+          var eMonthToSend = leadString(normalizeMonth(iterMonth + 1), '00');
 
           batch.push([$.ajax({
             type: 'GET',
