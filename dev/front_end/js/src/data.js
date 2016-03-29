@@ -18,6 +18,6 @@
   * We bind this object with knockout js.
   * @namespace app.data.reviews
   */
-  app.data.reviews = [];
+  app.reviews = ko.observableArray([]);
 
 })();

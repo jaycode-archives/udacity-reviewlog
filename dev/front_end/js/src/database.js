@@ -18,7 +18,7 @@ var app = app || {};
       app.db = request.result;
       var reviewsStore = app.db.createObjectStore("reviews", { keyPath: "id" });
       reviewsStore.createIndex('by_id', 'id', {unique: true});
-      reviewsStore.createIndex('by_completed_at', 'completed_at', {unique: false});
+      reviewsStore.createIndex('by_assigned_at', 'assigned_at', {unique: false});
 
       app.db = request.result;
     };

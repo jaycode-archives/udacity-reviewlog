@@ -16,13 +16,39 @@
 <body>
   <div id="main_area" class="main">
     <div class="workspace" id="workspace">
-      <div id="review-list" class="review-list page" data-bind="with: reviews">
+      <div id="review-list" class="review-list page">
         <div class="review-topbar">
-          <h1 class="review-name" data-bind="text: name"></h1>
+          <h1 class="review-name"></h1>
         </div>
         <div class="row">
           <div class="medium-12 columns">
-            <table id="review-list-table" width="100%"></table>
+            <table id="review-list-table" width="100%">
+              <thead>
+                <tr>
+                  <td>Project Name</td>
+                  <td>Date</td>
+                  <td>Time Start</td>
+                  <td>Time End</td>
+                  <td>Time Spent</td>
+                  <td>$</td>
+                  <td>Reference</td>
+                  <td>Link</td>
+                  <td>Notes</td>
+                </tr>
+              </thead>
+              <tbody data-bind="foreach: app.reviews">
+                <tr>
+                  <td data-bind="text: project_name"></td>
+                  <td data-bind="text: date"></td>
+                  <td data-bind="text: time_start"></td>
+                  <td data-bind="text: time_end"></td>
+                  <td data-bind="text: time_spent"></td>
+                  <td data-bind="text: price"></td>
+                  <td data-bind="text: link"></td>
+                  <td data-bind="text: notes"></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

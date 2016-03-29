@@ -12,14 +12,25 @@ app.commands.reviews = app.commands.reviews || {};
     run: function(args, terminal) {
       var tx = app.db.transaction("reviews", "readonly");
       var store = tx.objectStore("reviews");
-      var index = store.index("by_completed_at");
+      var index = store.index("by_assigned_at");
 
       var request = index.openCursor();
+      app.data.reviews = [];
       request.onsuccess = function() {
         var cursor = request.result;
         if (cursor) {
           // Called for each matching record.
-          console.log(cursor.value.id + " " + cursor.value.name);
+          app.reviews.push({
+            project_name: cursor.value.project_id,
+            date: '',
+            time_start: 0,
+            time_end: 0,
+            time_spent: 0,
+            price: cursor.value.price,
+            reference: '',
+            link: 'a',
+            notes: 'a'
+          });
           cursor.continue();
         } else {
           // No more matching records.
@@ -27,25 +38,31 @@ app.commands.reviews = app.commands.reviews || {};
         }
       };
 
-      $('#review-list-table').DataTable( {
-          paging: true,
-          pagingType: 'numbers',
-          data: data.docs,
-          columns: [
-            {title: 'Project Name', data: 'name'},
-            {title: 'Labeled', data: 'num_data_fields_labeled'},
-            {title: 'Blocks', data: 'num_data_fields_total'},
-            {title: 'Filesize', type: 'natural', data: 'size', render: function(size) {return (size).fileSize();}},
-            {title: 'Status', data: function(row, type, set, meta) {
-              var status = 'unprocessed';
-              if (row.num_data_fields_labeled > 0) {
-                status = 'labeled';
-              } 
-              return(status);}
-            },
-            {sortable: false, render: function(row) {return '<a role="button" onclick="app.vm.loadDoc(event);" class="button tiny inline">Load</a>';}}
-          ]
-      });
+
+      // $('#review-list-table').DataTable( {
+      //     paging: true,
+      //     pagingType: 'numbers',
+      //     data: data.docs,
+      //     columns: [
+      //       {title: 'Project Name', data: 'project_name'},
+      //       {title: 'Date', data: 'assigned_at'},
+      //       {title: 'Time Start', data: 'assigned_at'},
+      //       {title: 'Time End', data: 'completed_at'},
+      //       {title: 'Time Spent', data: function(row, type, set, meta) {
+      //         var status = 'unprocessed';
+      //         if (row.num_data_fields_labeled > 0) {
+      //           status = 'labeled';
+      //         } 
+      //         return(status);}
+      //       },
+      //       {title: '$', data: 'price'},
+      //       {title: 'Identifier', data: 'id'},
+      //       {title: 'Link', data: 'id'},
+      //       {title: 'Notes'}
+      //     ]
+      // });
+      app.showPage('#review-list');
+      return "Loading list page...";
     }
   };
 })();
