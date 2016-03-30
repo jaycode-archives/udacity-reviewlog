@@ -136,3 +136,7 @@ testGetDatesFromArgs = function() {
   console.assert(getDatesFromArgs(['2015', 'Dec', '5', '2016', 'Feb', '7'])[0].getDate(), 5);
   console.assert(getDatesFromArgs(['2015', 'Dec', '5', '2016', 'Feb', '7'])[0].getDate(), 7);
 }
+
+formatTimeSpent = function(minutesSpent) {
+  return Math.floor(minutesSpent / 60) + ' H ' + leadString(parseInt(minutesSpent) % 60, '00') + ' M';
+}

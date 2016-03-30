@@ -16,6 +16,8 @@
 <body>
   <div id="main_area" class="main">
     <div class="workspace" id="workspace">
+      <div id="report-main" class="report-main page">
+      </div>
       <div id="review-list" class="review-list page">
         <div class="review-topbar">
           <div class="row">
@@ -30,6 +32,14 @@
           </div>
           <div class="medium-6 columns">
             <label>Total Reviews: <span data-bind="text: totalReviews"></span></label>
+          </div>
+        </div>
+        <div class="row" data-bind="with: report">
+          <div class="medium-6 columns">
+            <label>Total Time Spent: <span data-bind="text: totalTimeSpent"></span></label>
+          </div>
+          <div class="medium-6 columns">
+            <label>Avg. Hourly Earnings: <span data-bind="text: avgHourlyEarnings"></span></label>
           </div>
         </div>
         <div class="row">

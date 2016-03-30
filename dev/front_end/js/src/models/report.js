@@ -17,15 +17,34 @@ var app = app || {};
        */
       read: function() {
         return '$' + formatThousandSeparators(self._totalEarnings());
-      },
-      /**
-       * Writes to {@link app.Report#_totalEarnings}
-       * @memberOf app.Report#totalEarnings
-       * @param {string|number} value Could be "10,000.00" or 10000.00.
-       */
-      write: function(value) {
-        self._totalEarnings(parseNumberWithSeparators(value));
       }
-    })
+    });
+
+    /**
+     * Time spent in minutes.
+     */
+    self._totalTimeSpent = ko.observable(0);
+    self.totalTimeSpent = ko.computed({
+      /**
+       * Returns time spent in hours and minutes format.
+       * @memberOf app.Report#totalTimeSpent
+       * @return {string}
+       */
+      read: function() {
+        return formatTimeSpent(self._totalTimeSpent());
+      }
+    });
+    self._avgHourlyEarnings = ko.observable(0.0);
+    self.avgHourlyEarnings = ko.computed({
+      /**
+       * Returns average hourly earnings, {@link formatThousandSeparators separated by commas}.
+       * @memberOf app.Report#avgHourlyEarnings
+       * @return {string}
+       */
+      read: function() {
+        return '$' + formatThousandSeparators(self._avgHourlyEarnings());
+      }
+    });
+
   }
 })();

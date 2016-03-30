@@ -29,15 +29,19 @@ app.commands.reviews = app.commands.reviews || {};
       var request = index.openCursor(IDBKeyRange.bound(fromDate, toDate));
       // var request = index.openCursor();
       app.vm.reviews.removeAll();
-      app.vm.report.totalEarnings(0.0);
+      app.vm.report._totalEarnings(0.0);
       app.vm.report.totalReviews(0.0);
+      app.vm.report._totalTimeSpent(0);
+      app.vm.report._avgHourlyEarnings(0.0);
 
       request.onsuccess = function() {
         var cursor = request.result;
         if (cursor) {
           var startTime = cursor.value.assigned_at;
           var endTime = cursor.value.completed_at;
-          var minutesSpent = endTime.getHours()*60+endTime.getMinutes() - startTime.getHours()*60+startTime.getMinutes();
+          var minutesSpent = (endTime.getTime() - startTime.getTime())/1000/60;
+
+          // var minutesSpent = (endTime.getHours()*60+endTime.getMinutes()) - (startTime.getHours()*60+startTime.getMinutes());
           // Called for each matching record.
           app.vm.reviews.push({
             project_name: cursor.value.project.name,
@@ -48,7 +52,7 @@ app.commands.reviews = app.commands.reviews || {};
                   }).split(' ').join('/'),
             time_start: leadString(startTime.getHours(), '00') + ':' + leadString(startTime.getMinutes(), '00'),
             time_end: leadString(endTime.getHours(), '00') + ':' + leadString(endTime.getMinutes(), '00'),
-            time_spent: leadString(Math.floor(minutesSpent / 60), '00') + ':' + leadString(minutesSpent % 60, '00'),
+            time_spent: formatTimeSpent(minutesSpent),
             price: cursor.value.price,
             reference: 'id (version)',
             link: '<a target="_blank" href="https://review.udacity.com/#!/reviews/' + cursor.value.id + '">'+cursor.value.id+'</a>',
@@ -56,8 +60,10 @@ app.commands.reviews = app.commands.reviews || {};
           });
 
           // Summary-related info:
-          app.vm.report.totalEarnings(app.vm.report._totalEarnings() + parseFloat(cursor.value.price));
+          app.vm.report._totalEarnings(app.vm.report._totalEarnings() + parseFloat(cursor.value.price));
           app.vm.report.totalReviews(app.vm.report.totalReviews() + 1);
+          app.vm.report._totalTimeSpent(app.vm.report._totalTimeSpent() + minutesSpent);
+          app.vm.report._avgHourlyEarnings(app.vm.report._totalEarnings() / (app.vm.report._totalTimeSpent()/60));
 
           cursor.continue();
         } else {
