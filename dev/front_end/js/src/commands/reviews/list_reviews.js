@@ -74,28 +74,33 @@ app.commands.reviews = app.commands.reviews || {};
       };
 
       tx.oncomplete = function() {
-        $('#review-list-table').dataTable( {
-            'lengthMenu': [ [10, 25, 50, 100, -1], [10, 25, 50, 100, 'All'] ],
-            'order': [[ 2, 'asc' ]],
-            'columns': [
-              {'data': 'id', 'title': 'No.', 'orderable': false},
-              {'data': 'project_name', 'title': 'Project Name'},
-              {'data': 'date', 'title': 'Date', 'type': 'date'},
-              {'data': 'time_start', 'title': 'Time Start'},
-              {'data': 'time_end', 'title': 'Time End'},
-              {'data': 'time_spent', 'title': 'Time Spent'},
-              {'data': 'price', 'title': '$'},
-              {'data': 'reference', 'title': 'Reference'},
-              {'data': 'link', 'title': 'Link'},
-              {'data': 'notes', 'title': 'Notes'}
-            ],
-            'data': app.data.reviews,
-            'rowCallback': function(row, data, index) {
-              // Set index row.
-              $('td:eq(0)',row).html(index + 1);
-              return row;
-            }
-        });
+        if ( $.fn.dataTable.isDataTable( '#review-list-table' ) ) {
+            $('#review-list-table').DataTable();
+        }
+        else {
+          $('#review-list-table').dataTable( {
+              'lengthMenu': [ [10, 25, 50, 100, -1], [10, 25, 50, 100, 'All'] ],
+              'order': [[ 2, 'asc' ]],
+              'columns': [
+                {'data': 'id', 'title': 'No.', 'orderable': false},
+                {'data': 'project_name', 'title': 'Project Name'},
+                {'data': 'date', 'title': 'Date', 'type': 'date'},
+                {'data': 'time_start', 'title': 'Time Start'},
+                {'data': 'time_end', 'title': 'Time End'},
+                {'data': 'time_spent', 'title': 'Time Spent'},
+                {'data': 'price', 'title': '$'},
+                {'data': 'reference', 'title': 'Reference'},
+                {'data': 'link', 'title': 'Link'},
+                {'data': 'notes', 'title': 'Notes'}
+              ],
+              'data': app.data.reviews,
+              'rowCallback': function(row, data, index) {
+                // Set index row.
+                $('td:eq(0)',row).html(index + 1);
+                return row;
+              }
+          });
+        }
       },
       app.showPage('#review-list');
       return "Loading list page...";
