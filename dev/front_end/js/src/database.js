@@ -30,6 +30,10 @@ var app = app || {};
         console.log("db error", arguments);
       };
     };
+
+    request.onerror = function(event) {
+      alert("Opening database failed. Error code: " + event.target.errorCode);
+    };
   };
 
   app.indexedStore.nukeDB = function() {
