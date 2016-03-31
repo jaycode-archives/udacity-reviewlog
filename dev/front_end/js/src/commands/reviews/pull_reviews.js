@@ -144,7 +144,6 @@ app.commands.reviews = app.commands.reviews || {};
         var code = batch[0][0];
         for (var i=0;i<batch.length-1;i++) {
           code = code.then(function(data) {
-            debugger;
             keepData(arguments[2], arguments[0][1], arguments[0][2]);
             return arguments[1][0];
           }.bind(this, batch[i], batch[i+1]));
