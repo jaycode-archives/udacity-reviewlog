@@ -25,7 +25,7 @@ app.commands = app.commands || {};
         }
         terminal.echo("previous api value: " + val);
         val = args[0];
-        localStorage.udacity_api = val;
+        localStorage.udacity_api = val.trim();
         return "new api value: " + val;
       }
     }
