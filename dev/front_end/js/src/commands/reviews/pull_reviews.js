@@ -40,7 +40,7 @@ app.commands.reviews = app.commands.reviews || {};
         // Default: Get 3 months back.
         var months = 3;
         if (args.length == 1) {
-          months = parseInt(args[0]) + 1;
+          months = parseInt(args[0]);
         }
 
         if (args.length <= 1) {
