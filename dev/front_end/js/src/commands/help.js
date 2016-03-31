@@ -11,7 +11,7 @@ app.commands = app.commands || {};
         return "";
       }
     },
-    run: function(args) {
+    run: function(args, terminal) {
       if (args[0] != null) {
         command = findCommand(args[0]);
         if (command) {
@@ -45,6 +45,24 @@ Commands\n\
                   "\tALT + +: Maximize console size.\n" +
                   "\tALT + -: Hide console.\n" +
                   "\tALT + 0: Standard console size.";
+              
+              if (localStorage.udacity_api) {
+                var tx = app.db.transaction("reviews", "readonly");
+                var store = tx.objectStore("reviews");
+                var request = store.count();
+                request.onsuccess = function() {
+                  var count = request.result;
+                  if (count == 0) {
+                    terminal.echo("There is no review in your local storage. Run `pull_reviews [num_months]` to download reviews from Udacity server.\n");
+                  }
+                  else {
+                    terminal.echo("You have " + count + " reviews stored. Run `list_reviews [year] [month]` to list them, or run report commands.\n");
+                  }
+                }
+              }
+              else {
+                str += "\n\nYou have not setup Udacity API code. Set it using `set_api [key]`.";
+              }
               return str;
       }
     }

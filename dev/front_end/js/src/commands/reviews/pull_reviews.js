@@ -64,7 +64,7 @@ app.commands.reviews = app.commands.reviews || {};
           // Not currently used, for reference only
           // var eMonth = monthString(normalizeMonth(arguments[1] + 1));
           
-          terminal.echo('Queuing review gathering from ' + sYear + ' ' + sMonth + '.');
+          terminal.echo('Gathering reviews from ' + sYear + ' ' + sMonth + '...');
 
           var sMonthToSend = leadString(iterMonth, '00');
           var eMonthToSend = leadString(normalizeMonth(iterMonth + 1), '00');
