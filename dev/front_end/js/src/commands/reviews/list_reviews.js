@@ -33,7 +33,8 @@ app.commands.reviews = app.commands.reviews || {};
       app.vm.report.totalReviews(0.0);
       app.vm.report._totalTimeSpent(0);
       app.vm.report._avgHourlyEarnings(0.0);
-      app.vm.reviewListMonth(fromDate.getFullYear() + ' ' + monthString(fromDate.getMonth() + 1));
+      app.vm.reviewListMonth(fromDate.getDate() + ' ' + monthString(fromDate.getMonth() + 1) + fromDate.getFullYear() +
+                             ' to ' + toDate.getDate() + ' ' + monthString(toDate.getMonth() + 1) + toDate.getFullYear());
       var totalEarnings = 0;
       var totalReviews = 0;
       var totalTimeSpent = 0;
