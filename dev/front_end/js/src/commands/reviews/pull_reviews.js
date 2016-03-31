@@ -51,8 +51,10 @@ app.commands.reviews = app.commands.reviews || {};
         }
         else {
           var startDate = new Date(args[0] + ' ' + args[1]);
-          var endDate = new Date(args[1] + ' ' + args[2]);
+          var endDate = new Date(args[2] + ' ' + args[3]);
         }
+
+
         var iterMonth = startDate.getMonth() + 1;
         var iterYear = startDate.getFullYear() + yearsFromMonths(endDate.getMonth() + 1 + 1);
         while (iterMonth != normalizeMonth(endDate.getMonth() + 2) || 
