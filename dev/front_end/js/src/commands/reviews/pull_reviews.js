@@ -120,17 +120,31 @@ app.commands.reviews = app.commands.reviews || {};
         // });
 
         // Not sure how to do this without eval.
-        var thenCode = "batch[0][0]";
+        // var thenCode = "batch[0][0]";
+        // for (var i=0;i<batch.length-1;i++) {
+        //   thenCode += ".then(function(data) {" +
+        //                 "keepData(data, batch["+i+"][1], batch["+i+"][2]);" +
+        //                 "return batch["+(i+1)+"][0];" +
+        //               "})";
+        // }
+        // thenCode += ".done(function(data) {" +
+        //                 "keepData(data, batch["+i+"][1], batch["+i+"][2]);" +
+        //               "})";
+        // eval(thenCode);
+
+        // Alright here is how to do it without eval, but we have
+        // weird behavior of bind and arguments, somehow we can no 
+        // longer use 'data' inside then().
+        var code = batch[0][0];
         for (var i=0;i<batch.length-1;i++) {
-          thenCode += ".then(function(data) {" +
-                        "keepData(data, batch["+i+"][1], batch["+i+"][2]);" +
-                        "return batch["+(i+1)+"][0];" +
-                      "})";
+          code = code.then(function(data) {
+            keepData(arguments[2], arguments[0][1], arguments[0][2]);
+            return arguments[1][0];
+          }.bind(this, batch[i], batch[i+1]));
         }
-        thenCode += ".done(function(data) {" +
-                        "keepData(data, batch["+i+"][1], batch["+i+"][2]);" +
-                      "})";
-        eval(thenCode);
+        code = code.done(function(data) {
+          keepData(data, batch[i][1], batch[i][2]);
+        });
 
         return '';
       }
