@@ -104,15 +104,16 @@ getDatesFromArgs = function(args) {
   if (args.length == 0) {
     var today = new Date();
     fromDate = new Date(today.getFullYear() + ' ' + (today.getMonth() + 1));
-    endDate = new Date((today.getFullYear() + yearsFromMonths(today.getMonth() + 2) + ' ' + normalizeMonth(today.getMonth() + 2)))
+    endDate = new Date((today.getFullYear() + yearsFromMonths(today.getMonth() + 2) + ' ' + normalizeMonth(today.getMonth() + 2)));
   }
   else if (args.length == 2) {
     fromDate = new Date(args[0] + ' ' + args[1]);
-    endDate = new Date((fromDate.getFullYear() + yearsFromMonths(fromDate.getMonth() + 2) + ' ' + normalizeMonth(fromDate.getMonth() + 2)))
+    endDate = new Date((fromDate.getFullYear() + yearsFromMonths(fromDate.getMonth() + 2) + ' ' + normalizeMonth(fromDate.getMonth() + 2)));
   }
   else if (args.length == 4) {
-    var fromDate = new Date(args[0] + ' ' + args[1]);
-    var endDate = new Date(args[2] + ' ' + args[3]);
+    fromDate = new Date(args[0] + ' ' + args[1]);
+    var until = new Date(args[2] + ' ' + args[3]);
+    endDate = new Date((until.getFullYear() + yearsFromMonths(until.getMonth() + 2) + ' ' + normalizeMonth(until.getMonth() + 2)));
   }
   else if (args.length == 6) {
     fromDate = new Date(args[0] + ' ' + args[1] + ' ' + args[2]);
@@ -132,7 +133,7 @@ testGetDatesFromArgs = function() {
   console.assert(getDatesFromArgs(['2015', 'Dec', '2016', 'Jan'])[0].getFullYear(), 2015);
   console.assert(getDatesFromArgs(['2015', 'Dec', '2016', 'Jan'])[0].getMonth(), 11);
   console.assert(getDatesFromArgs(['2015', 'Dec', '2016', 'Jan'])[1].getFullYear(), 2016);
-  console.assert(getDatesFromArgs(['2015', 'Dec', '2016', 'Feb'])[1].getMonth(), 1);
+  console.assert(getDatesFromArgs(['2015', 'Dec', '2016', 'Feb'])[1].getMonth(), 2);
   console.assert(getDatesFromArgs(['2015', 'Dec', '5', '2016', 'Feb', '7'])[0].getDate(), 5);
   console.assert(getDatesFromArgs(['2015', 'Dec', '5', '2016', 'Feb', '7'])[0].getDate(), 7);
   console.assert(getDatesFromArgs(['2015', 'Dec'])[1].getFullYear(), 2016);
