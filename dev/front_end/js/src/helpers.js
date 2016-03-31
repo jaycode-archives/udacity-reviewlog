@@ -104,11 +104,11 @@ getDatesFromArgs = function(args) {
   if (args.length == 0) {
     var today = new Date();
     fromDate = new Date(today.getFullYear() + ' ' + (today.getMonth() + 1));
-    endDate = new Date((today.getFullYear() + yearsFromMonths(normalizeMonth(today.getMonth() + 2)) + ' ' + normalizeMonth(today.getMonth() + 2)))
+    endDate = new Date((today.getFullYear() + yearsFromMonths(today.getMonth() + 2) + ' ' + normalizeMonth(today.getMonth() + 2)))
   }
   else if (args.length == 2) {
     fromDate = new Date(args[0] + ' ' + args[1]);
-    endDate = new Date((fromDate.getFullYear() + yearsFromMonths(normalizeMonth(fromDate.getMonth() + 2)) + ' ' + normalizeMonth(fromDate.getMonth() + 2)))
+    endDate = new Date((fromDate.getFullYear() + yearsFromMonths(fromDate.getMonth() + 2) + ' ' + normalizeMonth(fromDate.getMonth() + 2)))
   }
   else if (args.length == 4) {
     var fromDate = new Date(args[0] + ' ' + args[1]);
@@ -135,6 +135,8 @@ testGetDatesFromArgs = function() {
   console.assert(getDatesFromArgs(['2015', 'Dec', '2016', 'Feb'])[1].getMonth(), 1);
   console.assert(getDatesFromArgs(['2015', 'Dec', '5', '2016', 'Feb', '7'])[0].getDate(), 5);
   console.assert(getDatesFromArgs(['2015', 'Dec', '5', '2016', 'Feb', '7'])[0].getDate(), 7);
+  console.assert(getDatesFromArgs(['2015', 'Dec'])[1].getFullYear(), 2016);
+  console.assert(getDatesFromArgs(['2015', 'Dec'])[1].getMonth(), 0);
 }
 
 formatTimeSpent = function(minutesSpent) {

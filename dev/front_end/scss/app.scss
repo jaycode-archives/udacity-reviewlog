@@ -81,14 +81,12 @@ table .button {
 }
 
 .page {
-  .doc-topbar {
+  .topbar {
     border-bottom: 1px solid $hr-border-color;
     padding: 0 20px;
     background-color: $topbar-color;
-    .doc-name {
-      display: inline-block;
-    }
-    .doc-project_name {
+    margin-bottom: 5px;
+    .title-date {
       display: inline-block;
       font-size: $h4-font-size;
       color: $header-font-color-secondary;
@@ -100,5 +98,3 @@ table .button {
 }
 
 @import "console";
-@import "doc.view";
-@import "doc.list";

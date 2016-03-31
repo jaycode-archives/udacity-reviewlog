@@ -33,6 +33,11 @@ app.commands.reviews = app.commands.reviews || {};
       app.vm.report.totalReviews(0.0);
       app.vm.report._totalTimeSpent(0);
       app.vm.report._avgHourlyEarnings(0.0);
+      app.vm.reviewListMonth(fromDate.getFullYear() + ' ' + monthString(fromDate.getMonth() + 1));
+      var totalEarnings = 0;
+      var totalReviews = 0;
+      var totalTimeSpent = 0;
+      var avgHourlyEarnings = 0;
 
       request.onsuccess = function() {
         var cursor = request.result;
@@ -44,7 +49,7 @@ app.commands.reviews = app.commands.reviews || {};
           // var minutesSpent = (endTime.getHours()*60+endTime.getMinutes()) - (startTime.getHours()*60+startTime.getMinutes());
           // Called for each matching record.
           app.data.reviews.push({
-            'id': '',
+            id: '',
             project_name: cursor.value.project.name,
             date: startTime.toLocaleDateString('en-GB', {  
                       day : 'numeric',
@@ -61,10 +66,15 @@ app.commands.reviews = app.commands.reviews || {};
           });
 
           // Summary-related info:
-          app.vm.report._totalEarnings(app.vm.report._totalEarnings() + parseFloat(cursor.value.price));
-          app.vm.report.totalReviews(app.vm.report.totalReviews() + 1);
-          app.vm.report._totalTimeSpent(app.vm.report._totalTimeSpent() + minutesSpent);
-          app.vm.report._avgHourlyEarnings(app.vm.report._totalEarnings() / (app.vm.report._totalTimeSpent()/60));
+          // app.vm.report._totalEarnings(app.vm.report._totalEarnings() + parseFloat(cursor.value.price));
+          // app.vm.report.totalReviews(app.vm.report.totalReviews() + 1);
+          // app.vm.report._totalTimeSpent(app.vm.report._totalTimeSpent() + minutesSpent);
+          // app.vm.report._avgHourlyEarnings(app.vm.report._totalEarnings() / (app.vm.report._totalTimeSpent()/60));
+
+          totalEarnings += parseFloat(cursor.value.price);
+          totalReviews += 1;
+          totalTimeSpent += minutesSpent;
+          avgHourlyEarnings = totalEarnings / (totalTimeSpent / 60);
 
           cursor.continue();
         } else {
@@ -74,14 +84,19 @@ app.commands.reviews = app.commands.reviews || {};
       };
 
       tx.oncomplete = function() {
+        app.vm.report._totalEarnings(totalEarnings);
+        app.vm.report.totalReviews(totalReviews);
+        app.vm.report._totalTimeSpent(totalTimeSpent);
+        app.vm.report._avgHourlyEarnings(avgHourlyEarnings);
+
         if ( $.fn.dataTable.isDataTable( '#review-list-table' ) ) {
-            $('#review-list-table').DataTable();
+            $('#review-list-table').dataTable().api().clear().rows.add(app.data.reviews).draw();
         }
         else {
           $('#review-list-table').dataTable( {
-              'lengthMenu': [ [10, 25, 50, 100, -1], [10, 25, 50, 100, 'All'] ],
-              'order': [[ 2, 'asc' ]],
-              'columns': [
+              lengthMenu: [ [100, -1], [100, 'All'] ],
+              order: [[ 2, 'asc' ]],
+              columns: [
                 {'data': 'id', 'title': 'No.', 'orderable': false},
                 {'data': 'project_name', 'title': 'Project Name'},
                 {'data': 'date', 'title': 'Date', 'type': 'date'},
@@ -93,8 +108,8 @@ app.commands.reviews = app.commands.reviews || {};
                 {'data': 'link', 'title': 'Link'},
                 {'data': 'notes', 'title': 'Notes'}
               ],
-              'data': app.data.reviews,
-              'rowCallback': function(row, data, index) {
+              data: app.data.reviews,
+              rowCallback: function(row, data, index) {
                 // Set index row.
                 $('td:eq(0)',row).html(index + 1);
                 return row;

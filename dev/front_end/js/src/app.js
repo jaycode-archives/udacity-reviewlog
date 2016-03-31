@@ -5,6 +5,8 @@ var app = app || {};
 
     self.report = new app.Report();
 
+    self.reviewListMonth = ko.observable('date');
+
     self.shrinkConsole = function() {
       $('#console').css('height', 0);
       $('#main_area').css('padding-bottom', 60);
