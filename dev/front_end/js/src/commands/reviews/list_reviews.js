@@ -28,7 +28,7 @@ app.commands.reviews = app.commands.reviews || {};
       var toDate = dates[1];
       var request = index.openCursor(IDBKeyRange.bound(fromDate, toDate));
       // var request = index.openCursor();
-      app.vm.reviews.removeAll();
+      app.data.reviews.length = 0;
       app.vm.report._totalEarnings(0.0);
       app.vm.report.totalReviews(0.0);
       app.vm.report._totalTimeSpent(0);
@@ -43,7 +43,8 @@ app.commands.reviews = app.commands.reviews || {};
 
           // var minutesSpent = (endTime.getHours()*60+endTime.getMinutes()) - (startTime.getHours()*60+startTime.getMinutes());
           // Called for each matching record.
-          app.vm.reviews.push({
+          app.data.reviews.push({
+            'id': '',
             project_name: cursor.value.project.name,
             date: startTime.toLocaleDateString('en-GB', {  
                       day : 'numeric',
@@ -72,29 +73,30 @@ app.commands.reviews = app.commands.reviews || {};
         }
       };
 
-
-      // $('#review-list-table').DataTable( {
-      //     paging: true,
-      //     pagingType: 'numbers',
-      //     data: data.docs,
-      //     columns: [
-      //       {title: 'Project Name', data: 'project_name'},
-      //       {title: 'Date', data: 'assigned_at'},
-      //       {title: 'Time Start', data: 'assigned_at'},
-      //       {title: 'Time End', data: 'completed_at'},
-      //       {title: 'Time Spent', data: function(row, type, set, meta) {
-      //         var status = 'unprocessed';
-      //         if (row.num_data_fields_labeled > 0) {
-      //           status = 'labeled';
-      //         } 
-      //         return(status);}
-      //       },
-      //       {title: '$', data: 'price'},
-      //       {title: 'Identifier', data: 'id'},
-      //       {title: 'Link', data: 'id'},
-      //       {title: 'Notes'}
-      //     ]
-      // });
+      tx.oncomplete = function() {
+        $('#review-list-table').dataTable( {
+            'lengthMenu': [ [10, 25, 50, 100, -1], [10, 25, 50, 100, 'All'] ],
+            'order': [[ 2, 'asc' ]],
+            'columns': [
+              {'data': 'id', 'title': 'No.', 'orderable': false},
+              {'data': 'project_name', 'title': 'Project Name'},
+              {'data': 'date', 'title': 'Date', 'type': 'date'},
+              {'data': 'time_start', 'title': 'Time Start'},
+              {'data': 'time_end', 'title': 'Time End'},
+              {'data': 'time_spent', 'title': 'Time Spent'},
+              {'data': 'price', 'title': '$'},
+              {'data': 'reference', 'title': 'Reference'},
+              {'data': 'link', 'title': 'Link'},
+              {'data': 'notes', 'title': 'Notes'}
+            ],
+            'data': app.data.reviews,
+            'rowCallback': function(row, data, index) {
+              // Set index row.
+              $('td:eq(0)',row).html(index + 1);
+              return row;
+            }
+        });
+      },
       app.showPage('#review-list');
       return "Loading list page...";
     }

@@ -3,13 +3,6 @@ var app = app || {};
   app.viewModel = function() {
     self = this;
 
-    /**
-    * Reviews collection. This should kind of resemble the database.
-    * We bind this object with knockout js.
-    * @namespace app.data.reviews
-    */
-    self.reviews = ko.observableArray([]);
-
     self.report = new app.Report();
 
     self.shrinkConsole = function() {

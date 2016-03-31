@@ -45,34 +45,6 @@
         <div class="row">
           <div class="medium-12 columns">
             <table id="review-list-table" width="100%">
-              <thead>
-                <tr>
-                  <td>No.</td>
-                  <td>Project Name</td>
-                  <td>Date</td>
-                  <td>Time Start</td>
-                  <td>Time End</td>
-                  <td>Time Spent</td>
-                  <td>$</td>
-                  <td>Reference</td>
-                  <td>Link</td>
-                  <td>Notes</td>
-                </tr>
-              </thead>
-              <tbody data-bind="foreach: reviews">
-                <tr>
-                  <td data-bind="text: ($index()+1)"></td>
-                  <td data-bind="text: project_name"></td>
-                  <td data-bind="text: date"></td>
-                  <td data-bind="text: time_start"></td>
-                  <td data-bind="text: time_end"></td>
-                  <td data-bind="text: time_spent"></td>
-                  <td data-bind="text: price"></td>
-                  <td data-bind="text: reference"></td>
-                  <td data-bind="html: link"></td>
-                  <td data-bind="text: notes"></td>
-                </tr>
-              </tbody>
             </table>
           </div>
         </div>
