@@ -14,7 +14,9 @@
   };
 
   /**
-  * Reviews collection. This should kind of resemble the database.
+  * Reviews collection
+  * 
+  * This should kind of resemble the database.
   * We bind this object with knockout js.
   * @namespace app.data.reviews
   */

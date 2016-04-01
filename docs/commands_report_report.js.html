@@ -31,20 +31,32 @@
           <article>
             <pre class="prettyprint linenums"><code>var app &#x3D; app || {};
 app.commands &#x3D; app.commands || {};
+/**
+ * Report related commands.
+ * @namespace app.commands.report
+ */
+app.commands.report &#x3D; app.commands.report || {};
 
 (function() {
   /** 
    * Shows report page and processes the reports there.
-   * @namespace app.commands.report
+   * @method app.commands.report.report
    */
-  app.commands.report &#x3D; {
+  app.commands.report.report &#x3D; {
     help: function(short) {
       if (short) {
         return &quot;Show report page.&quot;;
       }
       else {
         return &quot;&quot; +
-        &quot;usage: report&quot;;
+        &quot;usage 1: report\n&quot; +
+        &quot;Display report of all reviews of all time.\n\n&quot; +
+        &quot;usage 2: report [year]\n&quot; +
+        &quot;Display report of all reviews in given year.\n\n&quot; +
+        &quot;usage 3: report [year_start] [year_end]\n&quot; +
+        &quot;Display report of reviews in between range of years.\n\n&quot; +
+        &quot;usage 4: report [year_start] [month_start] [year_end] [month_end]\n&quot; +
+        &quot;Display report of reviews in between range of year and months.&quot;;
       }
     },
     run: function(args, terminal) {
@@ -56,16 +68,37 @@ app.commands &#x3D; app.commands || {};
       var index &#x3D; store.index(&quot;by_assigned_at&quot;);
 
       var request;
+      var datesInfo &#x3D; &quot;All Time&quot;;
       if (args.length &#x3D;&#x3D; 0) {
         request &#x3D; index.openCursor();
+      }
+      else if (args.length &#x3D;&#x3D; 1) {
+        var fromDate &#x3D; new Date(args[0] + &#x27; Jan 01&#x27;);
+        var toDate &#x3D; new Date(args[0] + &#x27; Dec 31&#x27;);
+        request &#x3D; index.openCursor(IDBKeyRange.bound(fromDate, toDate));
+        datesInfo &#x3D; fromDate.getDate() + &#x27; &#x27; + monthString(fromDate.getMonth() + 1) + &#x27; &#x27; + fromDate.getFullYear() +
+                    &#x27; - &#x27; + toDate.getDate() + &#x27; &#x27; + monthString(toDate.getMonth() + 1) + &#x27; &#x27; + toDate.getFullYear();
+      }
+      else if (args.length &#x3D;&#x3D; 2) {
+        var fromDate &#x3D; new Date(args[0] + &#x27; Jan 01&#x27;);
+        var toDate &#x3D; new Date(args[1] + &#x27; Dec 31&#x27;);
+        request &#x3D; index.openCursor(IDBKeyRange.bound(fromDate, toDate));
+        datesInfo &#x3D; fromDate.getDate() + &#x27; &#x27; + monthString(fromDate.getMonth() + 1) + &#x27; &#x27; + fromDate.getFullYear() +
+                    &#x27; - &#x27; + toDate.getDate() + &#x27; &#x27; + monthString(toDate.getMonth() + 1) + &#x27; &#x27; + toDate.getFullYear();
       }
       else {
         var dates &#x3D; getDatesFromArgs(args);
         var fromDate &#x3D; dates[0];
         var toDate &#x3D; dates[1];
-
+        var toDateDisplay &#x3D; toDate;
+        if (args.length !&#x3D; 6) {
+          toDateDisplay.setDate(toDateDisplay.getDate() - 1);
+        }
         request &#x3D; index.openCursor(IDBKeyRange.bound(fromDate, toDate));
+        datesInfo &#x3D; fromDate.getDate() + &#x27; &#x27; + monthString(fromDate.getMonth() + 1) + &#x27; &#x27; + fromDate.getFullYear() +
+                    &#x27; - &#x27; + toDateDisplay.getDate() + &#x27; &#x27; + monthString(toDateDisplay.getMonth() + 1) + &#x27; &#x27; + toDateDisplay.getFullYear();
       }
+      app.vm.datesInfo(datesInfo);
 
       request.onsuccess &#x3D; function() {
         var cursor &#x3D; request.result;
@@ -130,6 +163,7 @@ app.commands &#x3D; app.commands || {};
           title: &quot;Hourly Earnings ($/hour) By Months&quot;
         });
       }
+      return &quot;Processing report...&quot;
     }
   }
 })();</code></pre>

@@ -1,10 +1,7 @@
-/**
- * Report-related viewmodel.
- */
-
 var app = app || {};
 (function() {
   /**
+   * Report-related viewmodel.
    * @namespace app.report
    */
   app.report = function(data) {

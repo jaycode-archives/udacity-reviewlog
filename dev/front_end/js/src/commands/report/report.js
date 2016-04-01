@@ -1,12 +1,17 @@
 var app = app || {};
 app.commands = app.commands || {};
+/**
+ * Report related commands.
+ * @namespace app.commands.report
+ */
+app.commands.report = app.commands.report || {};
 
 (function() {
   /** 
    * Shows report page and processes the reports there.
-   * @namespace app.commands.report
+   * @method app.commands.report.report
    */
-  app.commands.report = {
+  app.commands.report.report = {
     help: function(short) {
       if (short) {
         return "Show report page.";

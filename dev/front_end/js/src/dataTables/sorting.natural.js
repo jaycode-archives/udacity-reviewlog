@@ -1,4 +1,8 @@
 /**
+ * @namespace dataTables
+ */
+
+/**
  * Data can often be a complicated mix of numbers and letters (file names
  * are a common example) and sorting them in a natural manner is quite a
  * difficult problem.
@@ -17,6 +21,7 @@
  *         { type: 'natural', targets: 0 }
  *       ]
  *    } );
+ * @memberOf dataTables
  */
 
 (function() {

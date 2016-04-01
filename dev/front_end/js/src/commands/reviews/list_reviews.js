@@ -1,8 +1,16 @@
 var app = app || {};
 app.commands = app.commands || {};
+/**
+ * Reviews related commands.
+ * @namespace app.commands.reviews
+ */
 app.commands.reviews = app.commands.reviews || {};
 
 (function() {
+  /**
+   * Lists locally stored reviews.
+   * @method app.commands.reviews.list_reviews
+   */
   app.commands.reviews.list_reviews = {
     help: function(short) {
       if (short) {

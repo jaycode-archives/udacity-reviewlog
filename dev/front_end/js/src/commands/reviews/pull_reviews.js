@@ -3,6 +3,10 @@ app.commands = app.commands || {};
 app.commands.reviews = app.commands.reviews || {};
 
 (function() {
+  /**
+   * Pulls reviews from Udacity server.
+   * @method app.command.reviews.pull_reviews
+   */
   app.commands.reviews.pull_reviews = {
     help: function(short) {
       if (short) {
