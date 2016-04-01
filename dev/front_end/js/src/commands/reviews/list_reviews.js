@@ -59,6 +59,11 @@ app.commands.reviews = app.commands.reviews || {};
           var endTime = cursor.value.completed_at;
           var minutesSpent = (endTime.getTime() - startTime.getTime())/1000/60;
 
+          var link = cursor.value.archive_url;
+          if (!link || link == '') {
+            link = cursor.value.url;
+          }
+
           // var minutesSpent = (endTime.getHours()*60+endTime.getMinutes()) - (startTime.getHours()*60+startTime.getMinutes());
           // Called for each matching record.
           app.data.reviews.push({
@@ -73,7 +78,7 @@ app.commands.reviews = app.commands.reviews || {};
             time_end: leadString(endTime.getHours(), '00') + ':' + leadString(endTime.getMinutes(), '00'),
             time_spent: formatTimeSpent(minutesSpent),
             price: cursor.value.price,
-            reference: 'id (version)',
+            reference: '<a target="_blank" href="' + link + '">' + cursor.value.user.name + '(version??)</a>',
             link: '<a target="_blank" href="https://review.udacity.com/#!/reviews/' + cursor.value.id + '">'+cursor.value.id+'</a>',
             status: cursor.value.status
           });

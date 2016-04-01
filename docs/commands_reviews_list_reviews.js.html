@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.5.0-dev">
+  <meta charset="utf-8">
+  <title>Source: commands/reviews/list_reviews.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: commands/reviews/list_reviews.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>var app &#x3D; app || {};
+app.commands &#x3D; app.commands || {};
+/**
+ * Reviews related commands.
+ * @namespace app.commands.reviews
+ */
+app.commands.reviews &#x3D; app.commands.reviews || {};
+
+(function() {
+  /**
+   * Lists locally stored reviews.
+   * @method app.commands.reviews.list_reviews
+   */
+  app.commands.reviews.list_reviews &#x3D; {
+    help: function(short) {
+      if (short) {
+        return &quot;List reviews of given year and month range.&quot;;
+      }
+      else {
+        return &quot;&quot; +
+        &quot;usage 1: list_reviews\n&quot; +
+        &quot;List all completed reviews this month.\n\n&quot; +
+        &quot;usage 2: list_reviews [year] [month]\n&quot; +
+        &quot;List reviews on given year and month.\n\n&quot; +
+        &quot;usage 3: list_reviews [year_start] [month_start] [year_end] [month_end]\n&quot; +
+        &quot;List reviews between range of year and months.&quot;;
+      }
+    },
+    run: function(args, terminal) {
+      var tx &#x3D; app.db.transaction(&quot;reviews&quot;, &quot;readonly&quot;);
+      var store &#x3D; tx.objectStore(&quot;reviews&quot;);
+      var index &#x3D; store.index(&quot;by_assigned_at&quot;);
+
+      var dates &#x3D; getDatesFromArgs(args);
+      var fromDate &#x3D; dates[0];
+      var toDate &#x3D; dates[1];
+      var request &#x3D; index.openCursor(IDBKeyRange.bound(fromDate, toDate));
+      // var request &#x3D; index.openCursor();
+      app.data.reviews.length &#x3D; 0;
+      app.vm.report._totalEarnings(0.0);
+      app.vm.report.totalReviews(0.0);
+      app.vm.report._totalTimeSpent(0);
+      app.vm.report._avgHourlyEarnings(0.0);
+      var toDateDisplay &#x3D; toDate;
+      if (args.length !&#x3D; 6) {
+        toDateDisplay.setDate(toDateDisplay.getDate() - 1);
+      }
+      app.vm.datesInfo(fromDate.getDate() + &#x27; &#x27; + monthString(fromDate.getMonth() + 1) + &#x27; &#x27; + fromDate.getFullYear() +
+                       &#x27; - &#x27; + toDateDisplay.getDate() + &#x27; &#x27; + monthString(toDateDisplay.getMonth() + 1) + &#x27; &#x27; + toDateDisplay.getFullYear());
+      var totalEarnings &#x3D; 0;
+      var totalReviews &#x3D; 0;
+      var totalTimeSpent &#x3D; 0;
+      var avgHourlyEarnings &#x3D; 0;
+
+      request.onsuccess &#x3D; function() {
+        var cursor &#x3D; request.result;
+        if (cursor) {
+          var startTime &#x3D; cursor.value.assigned_at;
+          var endTime &#x3D; cursor.value.completed_at;
+          var minutesSpent &#x3D; (endTime.getTime() - startTime.getTime())/1000/60;
+
+          var link &#x3D; cursor.value.archive_url;
+          if (!link || link &#x3D;&#x3D; &#x27;&#x27;) {
+            link &#x3D; cursor.value.url;
+          }
+
+          // var minutesSpent &#x3D; (endTime.getHours()*60+endTime.getMinutes()) - (startTime.getHours()*60+startTime.getMinutes());
+          // Called for each matching record.
+          app.data.reviews.push({
+            id: &#x27;&#x27;,
+            project_name: cursor.value.project.name,
+            date: startTime.toLocaleDateString(&#x27;en-GB&#x27;, {  
+                      day : &#x27;numeric&#x27;,
+                      month : &#x27;numeric&#x27;,
+                      year : &#x27;numeric&#x27;
+                  }).split(&#x27; &#x27;).join(&#x27;/&#x27;),
+            time_start: leadString(startTime.getHours(), &#x27;00&#x27;) + &#x27;:&#x27; + leadString(startTime.getMinutes(), &#x27;00&#x27;),
+            time_end: leadString(endTime.getHours(), &#x27;00&#x27;) + &#x27;:&#x27; + leadString(endTime.getMinutes(), &#x27;00&#x27;),
+            time_spent: formatTimeSpent(minutesSpent),
+            price: cursor.value.price,
+            reference: &#x27;&amp;lt;a target&#x3D;&quot;_blank&quot; href&#x3D;&quot;&#x27; + link + &#x27;&quot;&gt;&#x27; + cursor.value.user.name + &#x27;(version??)&amp;lt;/a&gt;&#x27;,
+            link: &#x27;&amp;lt;a target&#x3D;&quot;_blank&quot; href&#x3D;&quot;https://review.udacity.com/#!/reviews/&#x27; + cursor.value.id + &#x27;&quot;&gt;&#x27;+cursor.value.id+&#x27;&amp;lt;/a&gt;&#x27;,
+            status: cursor.value.status
+          });
+
+          // Summary-related info:
+          // app.vm.report._totalEarnings(app.vm.report._totalEarnings() + parseFloat(cursor.value.price));
+          // app.vm.report.totalReviews(app.vm.report.totalReviews() + 1);
+          // app.vm.report._totalTimeSpent(app.vm.report._totalTimeSpent() + minutesSpent);
+          // app.vm.report._avgHourlyEarnings(app.vm.report._totalEarnings() / (app.vm.report._totalTimeSpent()/60));
+
+          totalEarnings +&#x3D; parseFloat(cursor.value.price);
+          totalReviews +&#x3D; 1;
+          totalTimeSpent +&#x3D; minutesSpent;
+          avgHourlyEarnings &#x3D; totalEarnings / (totalTimeSpent / 60);
+
+          cursor.continue();
+        } else {
+          // No more matching records.
+          console.log(null);
+        }
+      };
+
+      tx.oncomplete &#x3D; function() {
+        app.vm.report._totalEarnings(totalEarnings);
+        app.vm.report.totalReviews(totalReviews);
+        app.vm.report._totalTimeSpent(totalTimeSpent);
+        app.vm.report._avgHourlyEarnings(avgHourlyEarnings);
+
+        if ( $.fn.dataTable.isDataTable( &#x27;#review-list-table&#x27; ) ) {
+            $(&#x27;#review-list-table&#x27;).dataTable().api().clear().rows.add(app.data.reviews).draw();
+        }
+        else {
+          $(&#x27;#review-list-table&#x27;).dataTable( {
+              lengthMenu: [ [100, -1], [100, &#x27;All&#x27;] ],
+              order: [[ 2, &#x27;asc&#x27; ]],
+              columns: [
+                {&#x27;data&#x27;: &#x27;id&#x27;, &#x27;title&#x27;: &#x27;No.&#x27;, &#x27;orderable&#x27;: false},
+                {&#x27;data&#x27;: &#x27;project_name&#x27;, &#x27;title&#x27;: &#x27;Project Name&#x27;},
+                {&#x27;data&#x27;: &#x27;date&#x27;, &#x27;title&#x27;: &#x27;Date&#x27;, &#x27;type&#x27;: &#x27;date&#x27;},
+                {&#x27;data&#x27;: &#x27;time_start&#x27;, &#x27;title&#x27;: &#x27;Time Start&#x27;},
+                {&#x27;data&#x27;: &#x27;time_end&#x27;, &#x27;title&#x27;: &#x27;Time End&#x27;},
+                {&#x27;data&#x27;: &#x27;time_spent&#x27;, &#x27;title&#x27;: &#x27;Time Spent&#x27;},
+                {&#x27;data&#x27;: &#x27;price&#x27;, &#x27;title&#x27;: &#x27;$&#x27;},
+                {&#x27;data&#x27;: &#x27;reference&#x27;, &#x27;title&#x27;: &#x27;Reference&#x27;},
+                {&#x27;data&#x27;: &#x27;link&#x27;, &#x27;title&#x27;: &#x27;Link&#x27;},
+                {&#x27;data&#x27;: &#x27;status&#x27;, &#x27;title&#x27;: &#x27;Status&#x27;}
+              ],
+              data: app.data.reviews,
+              rowCallback: function(row, data, index) {
+                // Set index row.
+                $(&#x27;td:eq(0)&#x27;,row).html(index + 1);
+                return row;
+              }
+          });
+        }
+      },
+      app.showPage(&#x27;#review-list&#x27;);
+      return &quot;Loading list page...&quot;;
+    }
+  };
+})();</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.5.0-dev on April 2, 2016.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/jquery.cookie.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>
