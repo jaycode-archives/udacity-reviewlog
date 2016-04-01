@@ -67,7 +67,7 @@ app.commands.reviews = app.commands.reviews || {};
             price: cursor.value.price,
             reference: 'id (version)',
             link: '<a target="_blank" href="https://review.udacity.com/#!/reviews/' + cursor.value.id + '">'+cursor.value.id+'</a>',
-            notes: ''
+            status: cursor.value.status
           });
 
           // Summary-related info:
@@ -111,7 +111,7 @@ app.commands.reviews = app.commands.reviews || {};
                 {'data': 'price', 'title': '$'},
                 {'data': 'reference', 'title': 'Reference'},
                 {'data': 'link', 'title': 'Link'},
-                {'data': 'notes', 'title': 'Notes'}
+                {'data': 'status', 'title': 'Status'}
               ],
               data: app.data.reviews,
               rowCallback: function(row, data, index) {
