@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.5.0-dev">
+  <meta charset="utf-8">
+  <title>Source: dataTables/sorting.natural.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: dataTables/sorting.natural.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>/**
+ * Data can often be a complicated mix of numbers and letters (file names
+ * are a common example) and sorting them in a natural manner is quite a
+ * difficult problem.
+ * 
+ * Fortunately a deal of work has already been done in this area by other
+ * authors - the following plug-in uses the [naturalSort() function by Jim
+ * Palmer](http://www.overset.com/2008/09/01/javascript-natural-sort-algorithm-with-unicode-support) to provide natural sorting in DataTables.
+ *
+ *  @name Natural sorting
+ *  @summary Sort data with a mix of numbers and letters _naturally_.
+ *  @author [Jim Palmer](http://www.overset.com/2008/09/01/javascript-natural-sort-algorithm-with-unicode-support)
+ *
+ *  @example
+ *    $(&#x27;#example&#x27;).dataTable( {
+ *       columnDefs: [
+ *         { type: &#x27;natural&#x27;, targets: 0 }
+ *       ]
+ *    } );
+ */
+
+(function() {
+
+/*
+ * Natural Sort algorithm for Javascript - Version 0.7 - Released under MIT license
+ * Author: Jim Palmer (based on chunking idea from Dave Koelle)
+ * Contributors: Mike Grier (mgrier.com), Clint Priest, Kyle Adams, guillermo
+ * See: http://js-naturalsort.googlecode.com/svn/trunk/naturalSort.js
+ */
+function naturalSort (a, b) {
+    var re &#x3D; /(^-?[0-9]+(\.?[0-9]*)[df]?e?[0-9]?$|^0x[0-9a-f]+$|[0-9]+)/gi,
+        sre &#x3D; /(^[ ]*|[ ]*$)/g,
+        dre &#x3D; /(^([\w ]+,?[\w ]+)?[\w ]+,?[\w ]+\d+:\d+(:\d+)?[\w ]?|^\d{1,4}[\/\-]\d{1,4}[\/\-]\d{1,4}|^\w+, \w+ \d+, \d{4})/,
+        hre &#x3D; /^0x[0-9a-f]+$/i,
+        ore &#x3D; /^0/,
+        // convert all to strings and trim()
+        x &#x3D; a.toString().replace(sre, &#x27;&#x27;) || &#x27;&#x27;,
+        y &#x3D; b.toString().replace(sre, &#x27;&#x27;) || &#x27;&#x27;,
+        // chunk/tokenize
+        xN &#x3D; x.replace(re, &#x27;\0$1\0&#x27;).replace(/\0$/,&#x27;&#x27;).replace(/^\0/,&#x27;&#x27;).split(&#x27;\0&#x27;),
+        yN &#x3D; y.replace(re, &#x27;\0$1\0&#x27;).replace(/\0$/,&#x27;&#x27;).replace(/^\0/,&#x27;&#x27;).split(&#x27;\0&#x27;),
+        // numeric, hex or date detection
+        xD &#x3D; parseInt(x.match(hre), 10) || (xN.length !&#x3D;&#x3D; 1 &amp;amp;&amp;amp; x.match(dre) &amp;amp;&amp;amp; Date.parse(x)),
+        yD &#x3D; parseInt(y.match(hre), 10) || xD &amp;amp;&amp;amp; y.match(dre) &amp;amp;&amp;amp; Date.parse(y) || null;
+
+    // first try and sort Hex codes or Dates
+    if (yD) {
+        if ( xD &amp;lt; yD ) {
+            return -1;
+        }
+        else if ( xD &gt; yD ) {
+            return 1;
+        }
+    }
+
+    // natural sorting through split numeric strings and default strings
+    for(var cLoc&#x3D;0, numS&#x3D;Math.max(xN.length, yN.length); cLoc &amp;lt; numS; cLoc++) {
+        // find floats not starting with &#x27;0&#x27;, string or 0 if not defined (Clint Priest)
+        var oFxNcL &#x3D; !(xN[cLoc] || &#x27;&#x27;).match(ore) &amp;amp;&amp;amp; parseFloat(xN[cLoc], 10) || xN[cLoc] || 0;
+        var oFyNcL &#x3D; !(yN[cLoc] || &#x27;&#x27;).match(ore) &amp;amp;&amp;amp; parseFloat(yN[cLoc], 10) || yN[cLoc] || 0;
+        // handle numeric vs string comparison - number &amp;lt; string - (Kyle Adams)
+        if (isNaN(oFxNcL) !&#x3D;&#x3D; isNaN(oFyNcL)) {
+            return (isNaN(oFxNcL)) ? 1 : -1;
+        }
+        // rely on string comparison if different types - i.e. &#x27;02&#x27; &amp;lt; 2 !&#x3D; &#x27;02&#x27; &amp;lt; &#x27;2&#x27;
+        else if (typeof oFxNcL !&#x3D;&#x3D; typeof oFyNcL) {
+            oFxNcL +&#x3D; &#x27;&#x27;;
+            oFyNcL +&#x3D; &#x27;&#x27;;
+        }
+        if (oFxNcL &amp;lt; oFyNcL) {
+            return -1;
+        }
+        if (oFxNcL &gt; oFyNcL) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+jQuery.extend( jQuery.fn.dataTableExt.oSort, {
+    &quot;natural-asc&quot;: function ( a, b ) {
+        return naturalSort(a,b);
+    },
+
+    &quot;natural-desc&quot;: function ( a, b ) {
+        return naturalSort(a,b) * -1;
+    }
+} );
+
+}());</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.5.0-dev on April 2, 2016.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/jquery.cookie.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

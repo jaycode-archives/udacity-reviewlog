@@ -1,0 +1,230 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.5.0-dev">
+  <meta charset="utf-8">
+  <title>Source: helpers.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: helpers.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>/**
+ * @namespace helpers
+ */
+
+/**
+* Find command from {@link app.commands}
+* @memberOf helpers
+* @param {string} cmd - Command string.
+*/
+findCommand &#x3D; function(cmd) {
+  foundCommand &#x3D; null;
+  for (command in app.commands) {
+    if (&#x27;run&#x27; in app.commands[command] &amp;amp;&amp;amp; command &#x3D;&#x3D; cmd) {
+      foundCommand &#x3D; app.commands[command];
+    }
+    else {
+      for (subcommand in app.commands[command]) {
+        if (&#x27;run&#x27; in app.commands[command][subcommand] &amp;amp;&amp;amp; subcommand &#x3D;&#x3D; cmd) {
+          foundCommand &#x3D; app.commands[command][subcommand];
+        }
+      }
+    }
+  }
+  return foundCommand;
+};
+
+/**
+ * Normalize months so there is no negative numbers.
+ * Examples:
+ * 0 turns into 12.
+ * -1 turns into 11.
+ * -2 turns into 10.
+ * -12 turns into 12
+ * 20 turns into 8.
+ * @memberOf helpers
+ * @param {int} month - Month to normalize.
+ */
+normalizeMonth &#x3D; function(month) {
+  var result &#x3D; (month) % 12;
+  return result &amp;lt;&#x3D; 0 ? result + 12: result;
+};
+
+/**
+ * Test normalizeMonth code.
+ * @memberOf helpers
+ */
+testNormalizeMonth &#x3D; function() {
+  console.assert(normalizeMonth(0) &#x3D;&#x3D; 12);
+  console.assert(normalizeMonth(-1) &#x3D;&#x3D; 11);
+  console.assert(normalizeMonth(-2) &#x3D;&#x3D; 10);
+  console.assert(normalizeMonth(-12) &#x3D;&#x3D; 12);
+  console.assert(normalizeMonth(12) &#x3D;&#x3D; 12);
+  console.assert(normalizeMonth(20) &#x3D;&#x3D; 8);
+};
+
+/**
+ * Get years interval from months interval
+ * Examples:
+ * 1 turns into 0
+ * 12 turns into 0 (because December is still not next year)
+ * -13 turns into -1
+ * 25 turns into 2
+ * @memberOf helpers
+ * @param {int} months - Months interval.
+ */
+yearsFromMonths &#x3D; function(months) {
+  return Math.floor(months / 13);
+};
+
+/**
+ * Converts month in number (starting with index &#x3D;&#x3D; 1, not 0) to short text format.
+ * @memberOf helpers
+ * @param {int} monthInt - Month in number, 1 &#x3D; Jan.
+ * @return {string} Short text format of month.
+ */
+monthString &#x3D; function(monthInt) {
+  var months &#x3D; [ &quot;Jan&quot;, &quot;Feb&quot;, &quot;Mar&quot;, &quot;Apr&quot;, &quot;May&quot;, &quot;Jun&quot;, &quot;Jul&quot;, &quot;Aug&quot;, &quot;Sep&quot;, &quot;Oct&quot;, &quot;Nov&quot;, &quot;Dec&quot; ];
+  return months[monthInt-1];
+};
+
+/**
+ * Add leading string, e.g. 5 to &#x27;05&#x27;.
+ * @memberOf helpers
+ * @param {int} number - Number to convert.
+ * @param {string} leadString - String showing lead text. With &#x27;000&#x27;, 1 will be converted to &#x27;001&#x27;.
+ * @return {string} Shows given number with leadstring.
+ */
+leadString &#x3D; function(number, leadString) {
+  var str &#x3D; leadString + number;
+  return str.substr(str.length-leadString.length);
+}
+
+/**
+ * Adds commas to number string, for example &quot;10000&quot; to &quot;10,000&quot;.
+ * @memberOf helpers
+ * @param {string|number} text - String of number to we will add commas for.
+ *   Due to how javascript works, you can pass in numbers as well.
+ * @return {string} String of number with commas added.
+ */
+formatThousandSeparators &#x3D; function(text) {
+  return parseFloat(text).toLocaleString();
+};
+
+/**
+ * Removes commas from given number string.
+ * For example it converts &quot;10,000&quot; to 10000. This is useful for
+ * preprocessing number prior to entering it to models.
+ * @memberOf helpers
+ * @param {string} text - String of number with comma separators.
+ * @return {number} Numeric representation of given string.
+ */
+parseNumberWithSeparators &#x3D; function(text) {
+  return parseInt(text.toString().replace(/(\d+),(?&#x3D;\d{3}(\D|$))/g, &quot;$1&quot;));
+};
+
+/**
+ * Returns from and end dates from given array of arguments.
+ * @memberOf helpers
+ * @param {array} args - Array of arguments.
+ * @return {array} Array containing fromDate and endDate.
+ */
+getDatesFromArgs &#x3D; function(args) {
+  var fromDate;
+  var endDate;
+  if (args.length &#x3D;&#x3D; 0) {
+    var today &#x3D; new Date();
+    fromDate &#x3D; new Date(today.getFullYear() + &#x27; &#x27; + (today.getMonth() + 1));
+    endDate &#x3D; new Date((today.getFullYear() + yearsFromMonths(today.getMonth() + 2) + &#x27; &#x27; + normalizeMonth(today.getMonth() + 2)));
+  }
+  else if (args.length &#x3D;&#x3D; 2) {
+    fromDate &#x3D; new Date(args[0] + &#x27; &#x27; + args[1]);
+    endDate &#x3D; new Date((fromDate.getFullYear() + yearsFromMonths(fromDate.getMonth() + 2) + &#x27; &#x27; + normalizeMonth(fromDate.getMonth() + 2)));
+  }
+  else if (args.length &#x3D;&#x3D; 4) {
+    fromDate &#x3D; new Date(args[0] + &#x27; &#x27; + args[1]);
+    var until &#x3D; new Date(args[2] + &#x27; &#x27; + args[3]);
+    endDate &#x3D; new Date((until.getFullYear() + yearsFromMonths(until.getMonth() + 2) + &#x27; &#x27; + normalizeMonth(until.getMonth() + 2)));
+  }
+  else if (args.length &#x3D;&#x3D; 6) {
+    fromDate &#x3D; new Date(args[0] + &#x27; &#x27; + args[1] + &#x27; &#x27; + args[2]);
+    endDate &#x3D; new Date(args[3] + &#x27; &#x27; + args[4] + &#x27; &#x27; + args[5]);
+  }
+  else {
+    throw new Error(&quot;Invalid number of arguments (should be 0, 2, 4, or 6&quot;);
+  }
+
+  return [fromDate, endDate];
+}
+
+/**
+ * Tests getDatesFromArgs function.
+ * @memberOf helpers
+ */
+testGetDatesFromArgs &#x3D; function() {
+  console.assert(getDatesFromArgs([])[0].getMonth(), (new Date()).getMonth());
+  console.assert(getDatesFromArgs([&#x27;2016&#x27;, &#x27;Mar&#x27;])[0].getMonth(), 2);
+  console.assert(getDatesFromArgs([&#x27;2016&#x27;, &#x27;Mar&#x27;])[1].getMonth(), 3);
+  console.assert(getDatesFromArgs([&#x27;2015&#x27;, &#x27;Dec&#x27;, &#x27;2016&#x27;, &#x27;Jan&#x27;])[0].getFullYear(), 2015);
+  console.assert(getDatesFromArgs([&#x27;2015&#x27;, &#x27;Dec&#x27;, &#x27;2016&#x27;, &#x27;Jan&#x27;])[0].getMonth(), 11);
+  console.assert(getDatesFromArgs([&#x27;2015&#x27;, &#x27;Dec&#x27;, &#x27;2016&#x27;, &#x27;Jan&#x27;])[1].getFullYear(), 2016);
+  console.assert(getDatesFromArgs([&#x27;2015&#x27;, &#x27;Dec&#x27;, &#x27;2016&#x27;, &#x27;Feb&#x27;])[1].getMonth(), 2);
+  console.assert(getDatesFromArgs([&#x27;2015&#x27;, &#x27;Dec&#x27;, &#x27;5&#x27;, &#x27;2016&#x27;, &#x27;Feb&#x27;, &#x27;7&#x27;])[0].getDate(), 5);
+  console.assert(getDatesFromArgs([&#x27;2015&#x27;, &#x27;Dec&#x27;, &#x27;5&#x27;, &#x27;2016&#x27;, &#x27;Feb&#x27;, &#x27;7&#x27;])[0].getDate(), 7);
+  console.assert(getDatesFromArgs([&#x27;2015&#x27;, &#x27;Dec&#x27;])[1].getFullYear(), 2016);
+  console.assert(getDatesFromArgs([&#x27;2015&#x27;, &#x27;Dec&#x27;])[1].getMonth(), 0);
+}
+
+/**
+ * Formats how minutes spent should be displayed.
+ * @memberOf helpers
+ * @param {float} minutesSpent - Number of minutes spent.
+ * @return {string} Time spent in &quot;00 H 00 M&quot; format.
+ */
+formatTimeSpent &#x3D; function(minutesSpent) {
+  return Math.floor(minutesSpent / 60) + &#x27; H &#x27; + leadString(parseInt(minutesSpent) % 60, &#x27;00&#x27;) + &#x27; M&#x27;;
+}</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.5.0-dev on April 2, 2016.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/jquery.cookie.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

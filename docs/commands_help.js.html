@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.5.0-dev">
+  <meta charset="utf-8">
+  <title>Source: commands/help.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: commands/help.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>/**
+ * Commands are the main units of action in this app.
+ * 
+ * Basically, a command consists of two methods: &#x60;help(short)&#x60; and &#x60;run(args, terminal)&#x60;.
+ * &#x60;help&#x60; is called when &#x60;help [command_name]&#x60; is called, while &#x60;run&#x60; is when that command is
+ * executed from the console.
+ *
+ * Namespace of a command is useful only to group that command, but it is not used for calling it.
+ * For example, {@link app.commands.report} is called with command &#x60;report&#x60;. Due to this, make sure
+ * that no two commands with the same name, even when they are under different namespaces.
+ * 
+ * @namespace app.commands
+ */
+var app &#x3D; app || {};
+app.commands &#x3D; app.commands || {};
+
+(function() {
+  /**
+   * @namespace app.commands.help
+   */
+  app.commands.help &#x3D; {
+    help: function(short) {
+      if (short) {
+        return &quot;This help command. Run help [command name] to find more details about that command&quot;;
+      }
+      else {
+        return &quot;&quot;;
+      }
+    },
+    run: function(args, terminal) {
+      if (args[0] !&#x3D; null) {
+        command &#x3D; findCommand(args[0]);
+        if (command) {
+          return command.help(false);
+        }
+        else {
+          return &quot;Command \&quot;&quot;+args[0]+&quot;\&quot; not found.&quot;;
+        }
+      }
+      else {
+              var str &#x3D; &quot;\
+------------\n\
+Commands\n\
+------------\n&quot;;
+              var other_str &#x3D; &quot;Other:\n&quot;;
+              for (command in app.commands) {
+                if (&#x27;run&#x27; in app.commands[command]) {
+                  other_str +&#x3D; &quot;\t&quot; + command + &quot;: &quot; + app.commands[command].help(true) + &quot;\n&quot;;
+                }
+                else {
+                  str +&#x3D; command + &quot;:\n&quot;;
+                  for (subcommand in app.commands[command]) {
+                    str +&#x3D; &quot;\t&quot; + subcommand + &quot;: &quot; + app.commands[command][subcommand].help(true) + &quot;\n&quot;;
+                  }
+                }
+              }
+              str +&#x3D; other_str;
+
+              str +&#x3D; &quot;\nOther useful commands:\n&quot; +
+                  &quot;\tCTRL + L: Clear console.\n&quot; +
+                  &quot;\tALT + +: Maximize console size.\n&quot; +
+                  &quot;\tALT + -: Hide console.\n&quot; +
+                  &quot;\tALT + 0: Standard console size.&quot;;
+              
+              if (localStorage.udacity_api) {
+                var tx &#x3D; app.db.transaction(&quot;reviews&quot;, &quot;readonly&quot;);
+                var store &#x3D; tx.objectStore(&quot;reviews&quot;);
+                var request &#x3D; store.count();
+                request.onsuccess &#x3D; function() {
+                  var count &#x3D; request.result;
+                  if (count &#x3D;&#x3D; 0) {
+                    terminal.echo(&quot;There is no review in your local storage. Run &#x60;pull_reviews [num_months]&#x60; to download reviews from Udacity server.\n&quot;);
+                  }
+                  else {
+                    terminal.echo(&quot;You have &quot; + count + &quot; reviews stored. Run &#x60;list_reviews [year] [month]&#x60; to list them, or run report commands.\n&quot;);
+                  }
+                }
+              }
+              else {
+                str +&#x3D; &quot;\n\nYou have not setup Udacity API code. Set it using &#x60;set_api [key]&#x60;.&quot;;
+              }
+              return str;
+      }
+    }
+  }
+})();</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.5.0-dev on April 2, 2016.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/jquery.cookie.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

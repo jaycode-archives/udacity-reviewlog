@@ -1,0 +1,219 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.5.0-dev">
+  <meta charset="utf-8">
+  <title>Source: commands/reviews/pull_reviews.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: commands/reviews/pull_reviews.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>var app &#x3D; app || {};
+app.commands &#x3D; app.commands || {};
+app.commands.reviews &#x3D; app.commands.reviews || {};
+
+(function() {
+  app.commands.reviews.pull_reviews &#x3D; {
+    help: function(short) {
+      if (short) {
+        return &quot;Download reviews from Udacity server.&quot;
+      }
+      else {
+        return &quot;usage 1: pull_reviews [num_months]\n&quot; +
+               &quot;\n&quot; +
+               &quot;Optional Arguments:\n&quot; +
+               &quot;\tnum_months: Number of months back. Default to 3 months when not given.\n\n&quot; +
+               &quot;usage 2: pull_reviews [year_start] [month_start] [year_end] [month_end]\n&quot; +
+               &quot;\n&quot;
+               &quot;Optional Arguments:n\n&quot; +
+               &quot;\tyear_start: Year start\n&quot; +
+               &quot;\tmonth_start: Month start (in number or text)\n&quot; +
+               &quot;\tyear_end: Year end\n&quot; +
+               &quot;\tmonth_end: Month end (in number or text)\n&quot; +
+               &quot;Example: pull_reviews 2015 Dec 2016 Mar&quot;
+      }
+    },
+    /**
+    * Running a pull reviews command.
+    *
+    * This command will divide given date range and split it by months.
+    * It will then send a pull request to server pulling completed reviews
+    * one month at a time.
+    * @param {Object} args: Arguments to be passed to this function, refer to
+    *                       {@link help} method for more info.
+    * @param {Object} terminal: Terminal instance. Several things can be done
+    *                           with this, e.g. echo-ing messages as process is running.
+    */
+    run: function(args, terminal) {
+      if (localStorage.udacity_api) {
+        var batch &#x3D; [];
+        // Default: Get 3 months back.
+        var months &#x3D; 3;
+        if (args.length &#x3D;&#x3D; 1) {
+          months &#x3D; parseInt(args[0]);
+        }
+
+        if (args.length &amp;lt;&#x3D; 1) {
+          var endDate &#x3D; new Date();
+          var startMonth &#x3D; normalizeMonth(endDate.getMonth() + 2 - months);
+          var startYear &#x3D; endDate.getFullYear() + yearsFromMonths(endDate.getMonth() + 1 - months);
+          var startDate &#x3D; new Date(startYear + &#x27; &#x27; + startMonth);
+        }
+        else {
+          var startDate &#x3D; new Date(args[0] + &#x27; &#x27; + args[1]);
+          var endDate &#x3D; new Date(args[2] + &#x27; &#x27; + args[3]);
+        }
+
+
+        var iterMonth &#x3D; startDate.getMonth() + 1;
+        var iterYear &#x3D; startDate.getFullYear() + yearsFromMonths(endDate.getMonth() + 1 + 1);
+        while (iterMonth !&#x3D; normalizeMonth(endDate.getMonth() + 2) || 
+               iterYear !&#x3D; (endDate.getFullYear() - yearsFromMonths(endDate.getMonth() + 2))) {
+
+          var sYear &#x3D; iterYear;
+          var sMonth &#x3D; monthString(iterMonth);
+          var eYear &#x3D; (iterYear + yearsFromMonths(iterMonth + 1));
+          // Not currently used, for reference only
+          // var eMonth &#x3D; monthString(normalizeMonth(arguments[1] + 1));
+          
+          terminal.echo(&#x27;Gathering reviews from &#x27; + sYear + &#x27; &#x27; + sMonth + &#x27;...&#x27;);
+
+          var sMonthToSend &#x3D; leadString(iterMonth, &#x27;00&#x27;);
+          var eMonthToSend &#x3D; leadString(normalizeMonth(iterMonth + 1), &#x27;00&#x27;);
+
+          batch.push([$.ajax({
+            type: &#x27;GET&#x27;,
+            url: app.data.settings.completedURL,
+            data: {
+              start_date: sYear + &#x27;-&#x27; + sMonthToSend + &#x27;-01&#x27;,
+              end_date: eYear + &#x27;-&#x27; + eMonthToSend + &#x27;-01&#x27;,
+            },
+            headers: {
+                &quot;Authorization&quot;:localStorage.udacity_api
+            },
+            error: function(xhr, status, errorThrown) {
+              terminal.echo(&quot;Error: &quot; + errorThrown);
+              if (xhr.status &#x3D;&#x3D; 401) {
+                terminal.echo(&quot;Check your API code with &#x60;read_api&#x60; command.&quot;);
+              }
+            }
+          }), sYear, sMonth]);
+
+          iterMonth +&#x3D; 1;
+          iterYear +&#x3D; yearsFromMonths(iterMonth);
+          iterMonth &#x3D; normalizeMonth(iterMonth);
+        };
+
+        var keepData &#x3D; function(data, sYear, sMonth) {
+          terminal.echo(&#x27;Retrieved &#x27; + data.length + &#x27; completed reviews from &#x27; + sYear + &#x27; &#x27; + sMonth + &#x27;.&#x27;);
+          for (id in data) {
+            var datum &#x3D; data[id];
+            var tx &#x3D; app.db.transaction(&#x27;reviews&#x27;, &#x27;readwrite&#x27;);
+            var store &#x3D; tx.objectStore(&quot;reviews&quot;);
+            datum.assigned_at &#x3D; new Date(datum.assigned_at);
+            datum.created_at &#x3D; new Date(datum.created_at);
+            datum.completed_at &#x3D; new Date(datum.completed_at);
+
+            var request &#x3D; store.put(datum);
+            request.onerror &#x3D; function() {
+              terminal.echo(request.error);
+            };
+            tx.onabort &#x3D; function() {
+              terminal.echo(tx.error);
+            };
+          }
+        }
+
+        // Reference: Next, we&#x27;re basically going to use &quot;then&quot; method
+        // to chain ajax methods similar to following:
+        //
+        // batch[0].then(function(data) {
+        //   terminal.echo(&#x27;Retrieved &#x27; + data.length + &#x27; completed reviews.&#x27;);
+        //   return batch[1];
+        // }).then(function(data) {
+        //   terminal.echo(&#x27;Retrieved &#x27; + data.length + &#x27; completed reviews.&#x27;);
+        //   return batch[2];
+        // }).done(function(data) {
+        //   terminal.echo(&#x27;Retrieved &#x27; + data.length + &#x27; completed reviews.&#x27;);
+        // });
+
+        // Not sure how to do this without eval.
+        // var thenCode &#x3D; &quot;batch[0][0]&quot;;
+        // for (var i&#x3D;0;i&amp;lt;batch.length-1;i++) {
+        //   thenCode +&#x3D; &quot;.then(function(data) {&quot; +
+        //                 &quot;keepData(data, batch[&quot;+i+&quot;][1], batch[&quot;+i+&quot;][2]);&quot; +
+        //                 &quot;return batch[&quot;+(i+1)+&quot;][0];&quot; +
+        //               &quot;})&quot;;
+        // }
+        // thenCode +&#x3D; &quot;.done(function(data) {&quot; +
+        //                 &quot;keepData(data, batch[&quot;+i+&quot;][1], batch[&quot;+i+&quot;][2]);&quot; +
+        //               &quot;})&quot;;
+        // eval(thenCode);
+
+        // Alright here is how to do it without eval, but we have
+        // weird behavior of bind and arguments, somehow we can no 
+        // longer use &#x27;data&#x27; inside then().
+        var code &#x3D; batch[0][0];
+        for (var i&#x3D;0;i&amp;lt;batch.length-1;i++) {
+          code &#x3D; code.then(function(data) {
+            keepData(arguments[2], arguments[0][1], arguments[0][2]);
+            return arguments[1][0];
+          }.bind(this, batch[i], batch[i+1]));
+        }
+        code &#x3D; code.done(function(data) {
+          keepData(data, batch[i][1], batch[i][2]);
+        });
+
+        return &#x27;&#x27;;
+      }
+      else {
+        return &quot;Set api code with &#x60;set_api [key]&#x60; command first.&quot;;
+      }
+    }
+
+  };
+})();</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.5.0-dev on April 2, 2016.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/jquery.cookie.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

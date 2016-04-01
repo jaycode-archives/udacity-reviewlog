@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.5.0-dev">
+  <meta charset="utf-8">
+  <title>Source: app.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: app.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>/**
+ * Main app&#x27;s javascript code. Initialize everything here.
+ * @namespace app
+ */
+
+var app &#x3D; app || {};
+(function() {
+
+  /**
+   * Main viewModel. A beacon for all other knockoutjs&#x27; viewmodels.
+   * @class app.viewModel
+   */
+  app.viewModel &#x3D; function() {
+    self &#x3D; this;
+
+    self.report &#x3D; new app.report();
+
+    /**
+     * Observable object to display date range on top of the app.
+     */
+    self.reviewListMonth &#x3D; ko.observable(&#x27;date&#x27;);
+
+    /**
+     * Shrinks console size
+     */
+    self.shrinkConsole &#x3D; function() {
+      $(&#x27;#console&#x27;).css(&#x27;height&#x27;, 0);
+      $(&#x27;#main_area&#x27;).css(&#x27;padding-bottom&#x27;, 60);
+    };
+
+    /**
+     * Expands console size
+     */
+    self.expandConsole &#x3D; function() {
+      $(&#x27;#console&#x27;).css(&#x27;height&#x27;, app.data.settings.consoleDefaultHeight);
+      $(&#x27;#main_area&#x27;).css(&#x27;padding-bottom&#x27;, app.data.settings.consoleDefaultHeight + 40);
+    };
+
+    /**
+     * Maximizes console size
+     */
+    self.maximizeConsole &#x3D; function() {
+      $(&#x27;#console&#x27;).css(&#x27;height&#x27;, $(window).height()-53);
+      $(&#x27;#main_area&#x27;).css(&#x27;padding-bottom&#x27;, 60);
+    };
+
+    /**
+     * Decides whether to shrink or expand console size based on its current state.
+     * Useful for the clickable box at the corner of console.
+     */
+    self.resizeConsole &#x3D; function() {
+      if (parseFloat($(&#x27;#console&#x27;).css(&#x27;height&#x27;)) &amp;lt; app.data.settings.consoleDefaultHeight) {
+        self.expandConsole();
+      }
+      else {
+        self.shrinkConsole();
+      }
+    };
+  };
+
+  /**
+   * Shows a page, given selector of that page.
+   */
+  app.showPage &#x3D; function(selector) {
+    $(&#x27;.page&#x27;).removeClass(&#x27;is_active&#x27;);
+    $(selector).addClass(&#x27;is_active&#x27;);
+  };
+
+  $(document).ready(function() {
+    app.vm &#x3D; new app.viewModel();
+    ko.applyBindings(app.vm);
+
+    app.vm.expandConsole();
+
+    // Prepare the console here.
+    jQuery(function($, undefined) {
+      $(&#x27;#console&#x27;).terminal(function(command, term) {
+        var cmd &#x3D; $.terminal.splitCommand(command);
+        // Find command
+        var foundCommand &#x3D; findCommand(cmd.name);
+        
+        if (foundCommand) {
+          $(&#x27;#console&#x27;).terminal().echo(foundCommand.run(cmd.args, $(&#x27;#console&#x27;).terminal())+&quot;\n&quot;);
+        }
+        else {
+          $(&#x27;#console&#x27;).terminal().echo(&quot;Command not found. Run &#x27;help&#x27; for list of commands\n&quot;);
+        }
+      }, {
+        greetings: &quot;Type &#x27;help&#x27; for list of commands.&quot;,
+        name: &#x27;Udacity Review Log console&#x27;,
+        height: app.data.settings.consoleDefaultHeight,
+        prompt: &#x27;reviewlog&gt; &#x27;,
+        keydown: function(e) {
+          if (e.which &#x3D;&#x3D;&#x3D; 82 &amp;amp;&amp;amp; e.ctrlKey) { // CTRL+R
+            return true;
+          }
+          else if (e.which &#x3D;&#x3D;&#x3D; 187 &amp;amp;&amp;amp; e.altKey) { // ALT++
+            app.vm.maximizeConsole();
+            return true;
+          }
+          else if (e.which &#x3D;&#x3D;&#x3D; 189 &amp;amp;&amp;amp; e.altKey) { // ALT+-
+            app.vm.shrinkConsole();
+            return true;
+          }
+          else if (e.which &#x3D;&#x3D;&#x3D; 48 &amp;amp;&amp;amp; e.altKey) { // ALT+0
+            app.vm.expandConsole();
+            return true;
+          }
+        }
+      });
+    });
+  });
+  window.onload &#x3D; function() {
+    app.indexedStore.setup();
+  };
+})();
+</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.5.0-dev on April 2, 2016.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/jquery.cookie.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

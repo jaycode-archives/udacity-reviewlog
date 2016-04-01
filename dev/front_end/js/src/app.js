@@ -1,27 +1,53 @@
+/**
+ * Main app's javascript code. Initialize everything here.
+ * @namespace app
+ */
+
 var app = app || {};
 (function() {
+
+  /**
+   * Main viewModel. A beacon for all other knockoutjs' viewmodels.
+   * @class app.viewModel
+   */
   app.viewModel = function() {
     self = this;
 
-    self.report = new app.Report();
+    self.report = new app.report();
 
-    self.reviewListMonth = ko.observable('date');
+    /**
+     * Observable object to display date range on top of the app.
+     */
+    self.datesInfo = ko.observable('date');
 
+    /**
+     * Shrinks console size
+     */
     self.shrinkConsole = function() {
       $('#console').css('height', 0);
       $('#main_area').css('padding-bottom', 60);
     };
 
+    /**
+     * Expands console size
+     */
     self.expandConsole = function() {
       $('#console').css('height', app.data.settings.consoleDefaultHeight);
       $('#main_area').css('padding-bottom', app.data.settings.consoleDefaultHeight + 40);
     };
 
+    /**
+     * Maximizes console size
+     */
     self.maximizeConsole = function() {
       $('#console').css('height', $(window).height()-53);
       $('#main_area').css('padding-bottom', 60);
     };
 
+    /**
+     * Decides whether to shrink or expand console size based on its current state.
+     * Useful for the clickable box at the corner of console.
+     */
     self.resizeConsole = function() {
       if (parseFloat($('#console').css('height')) < app.data.settings.consoleDefaultHeight) {
         self.expandConsole();
@@ -31,6 +57,10 @@ var app = app || {};
       }
     };
   };
+
+  /**
+   * Shows a page, given selector of that page.
+   */
   app.showPage = function(selector) {
     $('.page').removeClass('is_active');
     $(selector).addClass('is_active');
@@ -42,6 +72,7 @@ var app = app || {};
 
     app.vm.expandConsole();
 
+    // Prepare the console here.
     jQuery(function($, undefined) {
       $('#console').terminal(function(command, term) {
         var cmd = $.terminal.splitCommand(command);

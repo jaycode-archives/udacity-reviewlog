@@ -1,0 +1,13 @@
+{
+    "source": {
+        "include": [
+            "dev/front_end/js/src/",
+            "README.md"
+        ]
+    },
+    "opts": {
+        "template": "node_modules/jsdoc-baseline",
+        "recurse": true,
+        "destination": "./docs/"
+    }
+}

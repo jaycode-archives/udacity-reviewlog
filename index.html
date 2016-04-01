@@ -17,6 +17,13 @@
   <div id="main_area" class="main">
     <div class="workspace" id="workspace">
       <div id="report-main" class="report-main page">
+        <div class="report-topbar topbar">
+          <div class="row">
+            <div class="medium-12 columns">
+              <h1 class="report-name">Report <span class="title-date" data-bind="text: '(' + datesInfo() + ')'"></span></h1>
+            </div>
+          </div>
+        </div>
         <div class="row">
           <div id="report_panel-1" class="medium-6 columns">
           </div>
@@ -34,7 +41,7 @@
         <div class="review-topbar topbar">
           <div class="row">
             <div class="medium-12 columns">
-              <h1 class="review-name">Reviews <span class="title-date" data-bind="text: '(' + reviewListMonth() + ')'"></span></h1>
+              <h1 class="review-name">Reviews <span class="title-date" data-bind="text: '(' + datesInfo() + ')'"></span></h1>
             </div>
           </div>
         </div>

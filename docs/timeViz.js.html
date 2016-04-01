@@ -1,0 +1,200 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.5.0-dev">
+  <meta charset="utf-8">
+  <title>Source: timeViz.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: timeViz.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>var app &#x3D; app || {};
+
+(function() {
+  &quot;use strict&quot;;
+  /**
+   * Visualize value vs time related information
+   * @namespace app.timeViz
+   */
+  app.timeViz &#x3D; {};
+
+  /**
+   * Draw the visualization given data and css selector.
+   * @param {Array} data Data from server that include all candidates and all lifetimes.
+   * @param {string} chartSelector CSS selector where plot is drawn at.
+   * @param {object} params Setting parameters used when drawing histogram content.
+   * @param {function} params.timeFunc
+   * @param {function} params.valFunc
+   * @param {function} params.valGroupFunc
+   * @param {number} params.width Width of chart.
+   * @param {number} params.height Height of chart.
+   * @param {number} params.paddingTop Padding top of chart.
+   * @param {number} params.paddingBottom Padding bottom of chart.
+   * @param {number} params.paddingLeft Padding left of chart.
+   */
+  app.timeViz.draw &#x3D; function(rawdata, chartSelector, params) {
+    if (!params.paddingBottom) {
+      params.paddingBottom &#x3D; 70;
+    }
+    if (!params.paddingTop) {
+      params.paddingTop &#x3D; 20;
+    }
+    if (!params.paddingLeft) {
+      params.paddingLeft &#x3D; 40;
+    }
+    if (!params.valFunc) {
+      params.valFunc &#x3D; function (d) {return d.values;};
+    }
+    // Prepare svg
+    var svg &#x3D; d3.select(chartSelector)
+      .append(&#x27;svg&#x27;)
+        .attr(&#x27;width&#x27;, params.width)
+        .attr(&#x27;height&#x27;, params.height)
+      .append(&#x27;g&#x27;)
+        // .attr(&#x27;transform&#x27;, &quot;translate(&quot;+params.widthOffset+&quot;,0)&quot;)
+        .attr(&#x27;class&#x27;,&#x27;chart&#x27;);
+
+    var data &#x3D; d3.nest()
+      .key(params.timeFunc)
+      .rollup(params.valGroupFunc)
+      .entries(rawdata);
+    
+    var times &#x3D; [];
+    data.forEach(function(d) {
+      times.push(d.key);
+    });
+
+    // Find range of y-axis (x-axis does not need it).
+    var valExtent &#x3D; d3.extent(data, params.valFunc);
+    valExtent[0] &#x3D; 0;
+
+    // Create x-axis scale.
+    var timeScale &#x3D; d3.scale.ordinal()
+      .rangeRoundBands([params.paddingLeft, params.width - params.paddingLeft])
+      .domain(times)
+
+    // Create y-axis scale.
+    var valScale &#x3D; d3.scale.linear()
+      .range([params.height-params.paddingBottom, params.paddingTop])
+      .domain(valExtent);
+
+    // Create the actual x-axis.
+    var timeAxis &#x3D; d3.svg.axis()
+      .scale(timeScale)
+      .orient(&quot;bottom&quot;);
+
+    svg
+      .append(&#x27;g&#x27;)
+        .attr(&#x27;class&#x27;, &#x27;x axis&#x27;)
+        .attr(&#x27;transform&#x27;, &quot;translate(0,&quot; + (params.height-params.paddingBottom) + &quot;)&quot;)
+      .call(timeAxis)
+      .selectAll(&#x27;text&#x27;)
+        .attr(&quot;y&quot;, 0)
+        .attr(&quot;x&quot;, -9)
+        .attr(&quot;dy&quot;, &quot;.35em&quot;)
+        .style(&#x27;text-anchor&#x27;, &#x27;end&#x27;)
+        .attr(&#x27;transform&#x27;, &#x27;rotate(270)&#x27;);
+
+    // Create the actual y-axis.
+    var valAxis &#x3D; d3.svg.axis()
+      .scale(valScale)
+      .orient(&#x27;left&#x27;);
+
+    svg
+      .append(&#x27;g&#x27;)
+        .attr(&#x27;class&#x27;, &#x27;y axis&#x27;)
+        .attr(&#x27;transform&#x27;, &quot;translate(&quot; + params.paddingLeft + &quot;, 0)&quot;)
+      .call(valAxis);
+
+    // Add plot title
+    svg
+      .append(&#x27;text&#x27;)
+        .attr(&#x27;class&#x27;, &#x27;plot_title&#x27;)
+        .attr(&#x27;text-anchor&#x27;, &#x27;middle&#x27;)
+        .attr(&#x27;transform&#x27;, &#x27;translate(&#x27;+(params.width/2)+&#x27;,&#x27;+ 20 +&#x27;)&#x27;)
+        .text(params.title);
+
+    var line &#x3D; d3.svg.line()
+      // .x(function(d) {return timeScale(d.key) + 18;})
+      .x(function(d) {return timeScale(d.key);})
+      .y(function(d) {return valScale(d.values);})
+      .interpolate(&#x27;linear&#x27;);
+
+    var drawnLine &#x3D; svg.selectAll(chartSelector + &#x27; .drawnLine&#x27;)
+      .data(data)
+      .enter().append(&#x27;g&#x27;)
+      .attr(&#x27;class&#x27;, &#x27;drawnLine&#x27;);
+
+    drawnLine.append(&#x27;path&#x27;)
+      .attr(&#x27;class&#x27;, &#x27;line&#x27;)
+      .attr(&#x27;d&#x27;, line(data))
+      .style(&#x27;stroke&#x27;, function (d) {
+        return &#x27;blue&#x27;;
+      })
+      .style(&#x27;fill&#x27;, &#x27;none&#x27;);
+
+
+    // Hack: Make ordinal scale axis starts at 0px.
+    // -----------------------------
+
+    // Calculate distance between two ticks.
+    var t1text &#x3D; $($(chartSelector + &#x27; .x .tick&#x27;)[0]).attr(&#x27;transform&#x27;);
+    var t1x &#x3D; parseFloat(t1text.match(/translate\((.*),0\)/)[1]);
+    var t2text &#x3D; $($(chartSelector + &#x27; .x .tick&#x27;)[1]).attr(&#x27;transform&#x27;);
+    var t2x &#x3D; parseFloat(t2text.match(/translate\((.*),0\)/)[1]);
+    var dist &#x3D; t2x - t1x;
+
+    // Use the distance to reduce tick left positions.
+    $.each($(chartSelector + &#x27; .x .tick&#x27;), function(idx, el) {
+      var text &#x3D; $(el).attr(&#x27;transform&#x27;);
+      var x &#x3D; parseFloat(text.match(/translate\((.*),0\)/)[1]);
+      x -&#x3D; dist / 2 + 1;
+      $(el).attr(&#x27;transform&#x27;, &#x27;translate(&#x27;+ x +&#x27;,0)&#x27;);
+    });
+    // -----------------------------
+  }
+})();</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.5.0-dev on April 2, 2016.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/jquery.cookie.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

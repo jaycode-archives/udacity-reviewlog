@@ -1,12 +1,11 @@
-// report_summary [year_start] [month_start] [year_end] [month_end]
-// report_monthly [year_start] [month_start] [year_end] [month_end]
-// report_weekly [year_start] [month_start] [year_end] [month_end]
-
 var app = app || {};
 app.commands = app.commands || {};
-app.commands.report = app.commands.report || {};
 
 (function() {
+  /** 
+   * Shows report page and processes the reports there.
+   * @namespace app.commands.report
+   */
   app.commands.report = {
     help: function(short) {
       if (short) {
@@ -14,7 +13,14 @@ app.commands.report = app.commands.report || {};
       }
       else {
         return "" +
-        "usage: report";
+        "usage 1: report\n" +
+        "Display report of all reviews of all time.\n\n" +
+        "usage 2: report [year]\n" +
+        "Display report of all reviews in given year.\n\n" +
+        "usage 3: report [year_start] [year_end]\n" +
+        "Display report of reviews in between range of years.\n\n" +
+        "usage 4: report [year_start] [month_start] [year_end] [month_end]\n" +
+        "Display report of reviews in between range of year and months.";
       }
     },
     run: function(args, terminal) {
@@ -26,16 +32,37 @@ app.commands.report = app.commands.report || {};
       var index = store.index("by_assigned_at");
 
       var request;
+      var datesInfo = "All Time";
       if (args.length == 0) {
         request = index.openCursor();
+      }
+      else if (args.length == 1) {
+        var fromDate = new Date(args[0] + ' Jan 01');
+        var toDate = new Date(args[0] + ' Dec 31');
+        request = index.openCursor(IDBKeyRange.bound(fromDate, toDate));
+        datesInfo = fromDate.getDate() + ' ' + monthString(fromDate.getMonth() + 1) + ' ' + fromDate.getFullYear() +
+                    ' - ' + toDate.getDate() + ' ' + monthString(toDate.getMonth() + 1) + ' ' + toDate.getFullYear();
+      }
+      else if (args.length == 2) {
+        var fromDate = new Date(args[0] + ' Jan 01');
+        var toDate = new Date(args[1] + ' Dec 31');
+        request = index.openCursor(IDBKeyRange.bound(fromDate, toDate));
+        datesInfo = fromDate.getDate() + ' ' + monthString(fromDate.getMonth() + 1) + ' ' + fromDate.getFullYear() +
+                    ' - ' + toDate.getDate() + ' ' + monthString(toDate.getMonth() + 1) + ' ' + toDate.getFullYear();
       }
       else {
         var dates = getDatesFromArgs(args);
         var fromDate = dates[0];
         var toDate = dates[1];
-
+        var toDateDisplay = toDate;
+        if (args.length != 6) {
+          toDateDisplay.setDate(toDateDisplay.getDate() - 1);
+        }
         request = index.openCursor(IDBKeyRange.bound(fromDate, toDate));
+        datesInfo = fromDate.getDate() + ' ' + monthString(fromDate.getMonth() + 1) + ' ' + fromDate.getFullYear() +
+                    ' - ' + toDateDisplay.getDate() + ' ' + monthString(toDateDisplay.getMonth() + 1) + ' ' + toDateDisplay.getFullYear();
       }
+      app.vm.datesInfo(datesInfo);
 
       request.onsuccess = function() {
         var cursor = request.result;
@@ -100,6 +127,7 @@ app.commands.report = app.commands.report || {};
           title: "Hourly Earnings ($/hour) By Months"
         });
       }
+      return "Processing report..."
     }
   }
 })();

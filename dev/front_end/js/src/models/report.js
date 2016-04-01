@@ -4,7 +4,10 @@
 
 var app = app || {};
 (function() {
-  app.Report = function(data) {
+  /**
+   * @namespace app.report
+   */
+  app.report = function(data) {
     var self = this;
     
     self.totalReviews = ko.observable(0.0);

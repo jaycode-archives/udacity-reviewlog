@@ -2,7 +2,17 @@ var app = app || {};
 app.commands = app.commands || {};
 
 (function() {
+  /**
+   * API related commands
+   * @namespace app.commands.api
+   */
   app.commands.api = {};
+
+  /**
+   * Sets Udacity API given key. Triggered by calling `set_api` command in console.
+   * 
+   * @method app.commands.api.set_api
+   */
   app.commands.api.set_api = {
     help: function(short) {
       if (short) {
@@ -31,6 +41,11 @@ app.commands = app.commands || {};
     }
   };
 
+  /**
+   * Reads locally stored Udacity API code. Triggered by calling `read_api` command in console.
+   * 
+   * @method app.commands.api.read_api
+   */
   app.commands.api.read_api = {
         help: function(short) {
           if (short) {
@@ -50,6 +65,11 @@ app.commands = app.commands || {};
         }
   };
 
+  /**
+   * Deletes locally stored Udacity API code. Triggered by calling `delete_api` command in console.
+   * 
+   * @method app.commands.api.delete_api
+   */
   app.commands.api.delete_api = {
     help: function(short) {
       if (short) {

@@ -37,8 +37,8 @@ app.commands.reviews = app.commands.reviews || {};
       if (args.length != 6) {
         toDateDisplay.setDate(toDateDisplay.getDate() - 1);
       }
-      app.vm.reviewListMonth(fromDate.getDate() + ' ' + monthString(fromDate.getMonth() + 1) + ' ' + fromDate.getFullYear() +
-                             ' - ' + toDateDisplay.getDate() + ' ' + monthString(toDateDisplay.getMonth() + 1) + ' ' + toDateDisplay.getFullYear());
+      app.vm.datesInfo(fromDate.getDate() + ' ' + monthString(fromDate.getMonth() + 1) + ' ' + fromDate.getFullYear() +
+                       ' - ' + toDateDisplay.getDate() + ' ' + monthString(toDateDisplay.getMonth() + 1) + ' ' + toDateDisplay.getFullYear());
       var totalEarnings = 0;
       var totalReviews = 0;
       var totalTimeSpent = 0;

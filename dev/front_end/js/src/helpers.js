@@ -1,7 +1,11 @@
 /**
+ * @namespace helpers
+ */
+
+/**
 * Find command from {@link app.commands}
-*
-* @param {string} cmd: Command string.
+* @memberOf helpers
+* @param {string} cmd - Command string.
 */
 findCommand = function(cmd) {
   foundCommand = null;
@@ -28,13 +32,18 @@ findCommand = function(cmd) {
  * -2 turns into 10.
  * -12 turns into 12
  * 20 turns into 8.
- * @param {int} month: Month to normalize.
+ * @memberOf helpers
+ * @param {int} month - Month to normalize.
  */
 normalizeMonth = function(month) {
   var result = (month) % 12;
   return result <= 0 ? result + 12: result;
 };
 
+/**
+ * Test normalizeMonth code.
+ * @memberOf helpers
+ */
 testNormalizeMonth = function() {
   console.assert(normalizeMonth(0) == 12);
   console.assert(normalizeMonth(-1) == 11);
@@ -51,12 +60,19 @@ testNormalizeMonth = function() {
  * 12 turns into 0 (because December is still not next year)
  * -13 turns into -1
  * 25 turns into 2
- * @param {int} months: Months interval.
+ * @memberOf helpers
+ * @param {int} months - Months interval.
  */
 yearsFromMonths = function(months) {
   return Math.floor(months / 13);
 };
 
+/**
+ * Converts month in number (starting with index == 1, not 0) to short text format.
+ * @memberOf helpers
+ * @param {int} monthInt - Month in number, 1 = Jan.
+ * @return {string} Short text format of month.
+ */
 monthString = function(monthInt) {
   var months = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
   return months[monthInt-1];
@@ -64,8 +80,10 @@ monthString = function(monthInt) {
 
 /**
  * Add leading string, e.g. 5 to '05'.
- * @param {int} number: Number to convert.
- * @param {string} leadString: String showing lead text. With '000', 1 will be converted to '001'.
+ * @memberOf helpers
+ * @param {int} number - Number to convert.
+ * @param {string} leadString - String showing lead text. With '000', 1 will be converted to '001'.
+ * @return {string} Shows given number with leadstring.
  */
 leadString = function(number, leadString) {
   var str = leadString + number;
@@ -74,7 +92,8 @@ leadString = function(number, leadString) {
 
 /**
  * Adds commas to number string, for example "10000" to "10,000".
- * @param {string|number} text String of number to we will add commas for.
+ * @memberOf helpers
+ * @param {string|number} text - String of number to we will add commas for.
  *   Due to how javascript works, you can pass in numbers as well.
  * @return {string} String of number with commas added.
  */
@@ -86,7 +105,8 @@ formatThousandSeparators = function(text) {
  * Removes commas from given number string.
  * For example it converts "10,000" to 10000. This is useful for
  * preprocessing number prior to entering it to models.
- * @param {string} text String of number with comma separators.
+ * @memberOf helpers
+ * @param {string} text - String of number with comma separators.
  * @return {number} Numeric representation of given string.
  */
 parseNumberWithSeparators = function(text) {
@@ -95,7 +115,8 @@ parseNumberWithSeparators = function(text) {
 
 /**
  * Returns from and end dates from given array of arguments.
- * @param {array} args: Array of arguments.
+ * @memberOf helpers
+ * @param {array} args - Array of arguments.
  * @return {array} Array containing fromDate and endDate.
  */
 getDatesFromArgs = function(args) {
@@ -126,6 +147,10 @@ getDatesFromArgs = function(args) {
   return [fromDate, endDate];
 }
 
+/**
+ * Tests getDatesFromArgs function.
+ * @memberOf helpers
+ */
 testGetDatesFromArgs = function() {
   console.assert(getDatesFromArgs([])[0].getMonth(), (new Date()).getMonth());
   console.assert(getDatesFromArgs(['2016', 'Mar'])[0].getMonth(), 2);
@@ -140,6 +165,12 @@ testGetDatesFromArgs = function() {
   console.assert(getDatesFromArgs(['2015', 'Dec'])[1].getMonth(), 0);
 }
 
+/**
+ * Formats how minutes spent should be displayed.
+ * @memberOf helpers
+ * @param {float} minutesSpent - Number of minutes spent.
+ * @return {string} Time spent in "00 H 00 M" format.
+ */
 formatTimeSpent = function(minutesSpent) {
   return Math.floor(minutesSpent / 60) + ' H ' + leadString(parseInt(minutesSpent) % 60, '00') + ' M';
 }

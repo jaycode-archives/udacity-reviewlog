@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.5.0-dev">
+  <meta charset="utf-8">
+  <title>Source: commands/report/report.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: commands/report/report.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>var app &#x3D; app || {};
+app.commands &#x3D; app.commands || {};
+
+(function() {
+  /** 
+   * Shows report page and processes the reports there.
+   * @namespace app.commands.report
+   */
+  app.commands.report &#x3D; {
+    help: function(short) {
+      if (short) {
+        return &quot;Show report page.&quot;;
+      }
+      else {
+        return &quot;&quot; +
+        &quot;usage: report&quot;;
+      }
+    },
+    run: function(args, terminal) {
+      app.showPage(&#x27;#report-main&#x27;);
+      var data &#x3D; [];
+
+      var tx &#x3D; app.db.transaction(&quot;reviews&quot;, &quot;readonly&quot;);
+      var store &#x3D; tx.objectStore(&quot;reviews&quot;);
+      var index &#x3D; store.index(&quot;by_assigned_at&quot;);
+
+      var request;
+      if (args.length &#x3D;&#x3D; 0) {
+        request &#x3D; index.openCursor();
+      }
+      else {
+        var dates &#x3D; getDatesFromArgs(args);
+        var fromDate &#x3D; dates[0];
+        var toDate &#x3D; dates[1];
+
+        request &#x3D; index.openCursor(IDBKeyRange.bound(fromDate, toDate));
+      }
+
+      request.onsuccess &#x3D; function() {
+        var cursor &#x3D; request.result;
+        if (cursor) {
+          data.push({
+            time: (cursor.value.assigned_at.getFullYear() + &#x27; &#x27; + 
+            monthString(cursor.value.assigned_at.getMonth() + 1)),
+            price: cursor.value.price,
+            minutes_spent: (cursor.value.completed_at.getTime() - cursor.value.assigned_at.getTime())/1000/60
+          });
+          cursor.continue();
+        }
+      };
+
+      tx.oncomplete &#x3D; function() {
+        app.timeViz.draw(data, &#x27;#report_panel-1&#x27;, {
+          timeFunc: function (d) {return d.time;},
+          valGroupFunc: function (d) {return d3.sum(d, function(g) {return parseFloat(g.price);})},
+          width: 450,
+          height: 300,
+          widthOffset: 50,
+          heightOffset: 50,
+          timeLabel: &quot;Months&quot;,
+          valLabel: &quot;Total Earnings&quot;,
+          title: &quot;Total Earnings ($) By Months&quot;
+        });
+
+        app.timeViz.draw(data, &#x27;#report_panel-2&#x27;, {
+          timeFunc: function (d) {return d.time;},
+          valGroupFunc: function (d) {return d3.sum(d, function(g) {return 1;})},
+          width: 450,
+          height: 300,
+          widthOffset: 50,
+          heightOffset: 50,
+          timeLabel: &quot;Months&quot;,
+          valLabel: &quot;Total Reviews&quot;,
+          title: &quot;Number of Reviews By Months&quot;
+        });
+
+        app.timeViz.draw(data, &#x27;#report_panel-3&#x27;, {
+          timeFunc: function (d) {return d.time;},
+          valGroupFunc: function (d) {return d3.sum(d, function(g) {return parseFloat(g.minutes_spent);})},
+          width: 450,
+          height: 300,
+          widthOffset: 50,
+          heightOffset: 50,
+          timeLabel: &quot;Months&quot;,
+          valLabel: &quot;Minutes&quot;,
+          title: &quot;Time Spent (minutes) per Review By Months&quot;
+        });
+
+        app.timeViz.draw(data, &#x27;#report_panel-4&#x27;, {
+          timeFunc: function (d) {return d.time;},
+          valGroupFunc: function (d) {return d3.sum(d, function(g) {return parseFloat(g.price);}) / 
+                                             d3.sum(d, function(g) {return parseFloat(g.minutes_spent/60);})},
+          width: 450,
+          height: 300,
+          widthOffset: 50,
+          heightOffset: 50,
+          timeLabel: &quot;Months&quot;,
+          valLabel: &quot;Hourly Earnings&quot;,
+          title: &quot;Hourly Earnings ($/hour) By Months&quot;
+        });
+      }
+    }
+  }
+})();</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.5.0-dev on April 2, 2016.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/jquery.cookie.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

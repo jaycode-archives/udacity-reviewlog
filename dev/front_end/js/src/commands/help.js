@@ -1,7 +1,24 @@
+/**
+ * Commands are the main units of action in this app.
+ * 
+ * Basically, a command consists of two methods: `help(short)` and `run(args, terminal)`.
+ * `help` is called when `help [command_name]` is called, while `run` is when that command is
+ * executed from the console.
+ *
+ * Namespace of a command is useful only to group that command, but it is not used for calling it.
+ * For example, {@link app.commands.report} is called with command `report`. Due to this, make sure
+ * that no two commands with the same name, even when they are under different namespaces.
+ * 
+ * @namespace app.commands
+ */
 var app = app || {};
 app.commands = app.commands || {};
 
 (function() {
+  /**
+   * Runs help command. Runs with command name to show long explanations of that command e.g. `help report`.
+   * @method app.commands.help
+   */
   app.commands.help = {
     help: function(short) {
       if (short) {
