@@ -44,7 +44,7 @@ And there are still many ways to contribute, looking forward to work together wi
 ## Development Notes
 
 - To add new javascript plugin, run `bower install pluginname`.
-- This project uses Foundation with Grunt, so when you need to update your css, cd to `static` dir and run `grunt`.
+- This project uses Foundation with Grunt, so when you need to update your css, simply run `grunt`.
   You may then update the scss files and they will be compiled into app.css used in this app.
 - Documentation is made with jsdoc with baseline plugin. To export documentation,
   first [install jsdoc-baseline node module](https://github.com/hegemonic/jsdoc-baseline) 
